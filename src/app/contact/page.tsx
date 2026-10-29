@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
+import { ContactCards } from "@/components/ContactCards";
 import { PageHeader } from "@/components/PageHeader";
 import { Reveal } from "@/components/Reveal";
-import { IconPhone, IconPin, IconTikTok, IconWhatsApp } from "@/components/icons";
+import { IconTikTok } from "@/components/icons";
 import { site } from "@/lib/site";
-import { greetingUrl } from "@/lib/whatsapp";
 import { ContactForm } from "./ContactForm";
 
 export const metadata: Metadata = {
@@ -13,32 +13,6 @@ export const metadata: Metadata = {
 };
 
 export default function ContactPage() {
-  const cards = [
-    {
-      icon: IconWhatsApp,
-      title: "WhatsApp",
-      text: "Le plus rapide pour commander ou demander un prix.",
-      cta: "Ouvrir la conversation",
-      href: greetingUrl,
-      external: true,
-    },
-    {
-      icon: IconPhone,
-      title: site.phone,
-      text: `${site.hours}.`,
-      cta: "Lancer l’appel",
-      href: site.phoneHref,
-    },
-    {
-      icon: IconPin,
-      title: "La boutique",
-      text: `${site.address}, ${site.city} — ${site.country}.`,
-      cta: "Voir sur la carte",
-      href: site.mapsUrl,
-      external: true,
-    },
-  ];
-
   return (
     <>
       <PageHeader
@@ -49,22 +23,7 @@ export default function ContactPage() {
       />
 
       <section className="conteneur py-16 md:py-24">
-        <ul className="grid gap-px overflow-hidden rounded-2xl border border-filet bg-filet md:grid-cols-3">
-          {cards.map(({ icon: Icon, title, text, cta, href, external }, i) => (
-            <Reveal as="li" key={cta} delay={i * 90} className="bg-ivoire">
-              <a
-                href={href}
-                {...(external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
-                className="flex h-full flex-col p-8 transition-colors hover:bg-sable md:p-10"
-              >
-                <Icon width={26} height={26} className={i === 0 ? "text-[#1f8f4e]" : "text-or-fonce"} />
-                <p className="prix mt-6 font-serif text-3xl">{title}</p>
-                <p className="mt-2 text-sm leading-relaxed text-douce">{text}</p>
-                <span className="lien-souligne mt-auto self-start pt-8">{cta}</span>
-              </a>
-            </Reveal>
-          ))}
-        </ul>
+        <ContactCards />
       </section>
 
       <section className="border-t border-filet bg-sable/50">

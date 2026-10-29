@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import { ContactCards } from "@/components/ContactCards";
 import { ProductCard } from "@/components/ProductCard";
 import { Reveal } from "@/components/Reveal";
 import { FaqList } from "@/components/Faq";
@@ -9,7 +10,6 @@ import {
   IconChat,
   IconCrown,
   IconPhone,
-  IconPin,
   IconSparkle,
   IconStore,
   IconTag,
@@ -395,28 +395,7 @@ function Questions() {
 function Visite() {
   return (
     <section className="conteneur pb-20 md:pb-28">
-      <Reveal className="grid gap-px overflow-hidden rounded-2xl border border-filet bg-filet md:grid-cols-3">
-        <a href={greetingUrl} target="_blank" rel="noopener noreferrer" className="group bg-ivoire p-8 transition-colors hover:bg-sable md:p-10">
-          <IconWhatsApp width={26} height={26} className="text-[#1f8f4e]" />
-          <p className="mt-6 font-serif text-3xl">WhatsApp</p>
-          <p className="mt-2 text-sm text-douce">Commande, tarifs de gros, conseil.</p>
-          <span className="lien-souligne mt-6">Ouvrir la conversation</span>
-        </a>
-        <a href={site.phoneHref} className="group bg-ivoire p-8 transition-colors hover:bg-sable md:p-10">
-          <IconPhone width={26} height={26} className="text-or-fonce" />
-          <p className="prix mt-6 font-serif text-3xl">{site.phone}</p>
-          <p className="mt-2 text-sm text-douce">{site.hours}.</p>
-          <span className="lien-souligne mt-6">Appeler</span>
-        </a>
-        <a href={site.mapsUrl} target="_blank" rel="noopener noreferrer" className="group bg-ivoire p-8 transition-colors hover:bg-sable md:p-10">
-          <IconPin width={26} height={26} className="text-or-fonce" />
-          <p className="mt-6 font-serif text-3xl">La boutique</p>
-          <p className="mt-2 text-sm text-douce">
-            {site.address}, {site.city}.
-          </p>
-          <span className="lien-souligne mt-6">Itinéraire</span>
-        </a>
-      </Reveal>
+      <ContactCards />
     </section>
   );
 }
