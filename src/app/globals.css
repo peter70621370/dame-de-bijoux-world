@@ -29,6 +29,20 @@
   --animate-fondu: fondu 0.6s ease-out both;
   /* Intro du logo : se retire d'elle-même si le JavaScript ne s'exécute pas. */
   --animate-intro-secours: intro-secours 0.6s ease 8s forwards;
+  /* Étincelles autour du logo de la page de connexion du back-office. */
+  --animate-scintille: scintille 2.6s ease-in-out infinite;
+  /* Menu du back-office sur téléphone : glisse depuis la gauche. */
+  --animate-glisse: glisse 0.35s var(--ease-luxe) both;
+
+  @keyframes glisse {
+    from { transform: translateX(-100%); }
+    to { transform: none; }
+  }
+
+  @keyframes scintille {
+    0%, 100% { opacity: 0.2; transform: scale(0.55) rotate(0deg); }
+    50% { opacity: 1; transform: scale(1) rotate(25deg); }
+  }
 
   @keyframes intro-secours {
     to { opacity: 0; visibility: hidden; }

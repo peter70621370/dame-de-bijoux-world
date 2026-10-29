@@ -5,17 +5,20 @@ import { Breadcrumbs } from "@/components/PageHeader";
 import { ProductCard } from "@/components/ProductCard";
 import { Reveal } from "@/components/Reveal";
 import { JsonLd } from "@/components/JsonLd";
-import { getCategory, getProduct, products, relatedProducts } from "@/lib/products";
+import { getCatalogue, getProduct } from "@/lib/data/catalogue";
+import { relatedProducts } from "@/lib/products";
 import { site } from "@/lib/site";
 import { ProductView } from "./ProductView";
 
-export function generateStaticParams() {
-  return products.map((p) => ({ slug: p.slug }));
+export async function generateStaticParams() {
+  const { products } = await getCatalogue();
+  // Au moins une entrée est exigée ; une adresse inconnue renvoie simplement la page 404.
+  return products.length ? products.map((p) => ({ slug: p.slug })) : [{ slug: "aucun-article" }];
 }
 
 export async function generateMetadata({ params }: PageProps<"/selection/[slug]">): Promise<Metadata> {
   const { slug } = await params;
-  const product = getProduct(slug);
+  const product = await getProduct(slug);
   if (!product) return {};
   const title = `${product.name} — ${product.price.toLocaleString("fr-FR")} FCFA`;
   return {
@@ -55,11 +58,11 @@ function ProductSkeleton() {
 
 async function ProductContent({ params }: { params: PageProps<"/selection/[slug]">["params"] }) {
   const { slug } = await params;
-  const product = getProduct(slug);
+  const { products } = await getCatalogue();
+  const product = products.find((p) => p.slug === slug);
   if (!product) notFound();
 
-  const category = getCategory(product.category);
-  const related = relatedProducts(product);
+  const related = relatedProducts(product, products);
 
   return (
     <>
@@ -67,7 +70,7 @@ async function ProductContent({ params }: { params: PageProps<"/selection/[slug]
         <Breadcrumbs
           items={[
             { href: "/selection", label: "Sélection" },
-            { href: `/selection?categorie=${category.id}`, label: category.label },
+            { href: `/selection?categorie=${product.category}`, label: product.categoryLabel },
             { label: product.name },
           ]}
         />
@@ -75,21 +78,23 @@ async function ProductContent({ params }: { params: PageProps<"/selection/[slug]
 
       <ProductView product={product} />
 
-      <section className="border-t border-filet bg-sable/50">
-        <div className="conteneur py-20 md:py-24">
-          <Reveal>
-            <p className="eyebrow text-or-fonce">À associer</p>
-            <h2 className="titre mt-4 text-[clamp(2.3rem,4.5vw,3.75rem)]">Vous aimerez aussi</h2>
-          </Reveal>
-          <div className="mt-12 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {related.map((p, i) => (
-              <Reveal key={p.slug} delay={i * 90}>
-                <ProductCard product={p} />
-              </Reveal>
-            ))}
+      {related.length > 0 && (
+        <section className="border-t border-filet bg-sable/50">
+          <div className="conteneur py-20 md:py-24">
+            <Reveal>
+              <p className="eyebrow text-or-fonce">À associer</p>
+              <h2 className="titre mt-4 text-[clamp(2.3rem,4.5vw,3.75rem)]">Vous aimerez aussi</h2>
+            </Reveal>
+            <div className="mt-12 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+              {related.map((p, i) => (
+                <Reveal key={p.slug} delay={i * 90}>
+                  <ProductCard product={p} />
+                </Reveal>
+              ))}
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       <JsonLd
         data={{
@@ -97,8 +102,8 @@ async function ProductContent({ params }: { params: PageProps<"/selection/[slug]
           "@type": "Product",
           name: product.name,
           description: product.description,
-          image: product.images.map((i) => `${site.url}${i.src}`),
-          category: category.label,
+          image: product.images.map((i) => new URL(i.src, site.url).href),
+          category: product.categoryLabel,
           brand: { "@type": "Brand", name: site.name },
           offers: {
             "@type": "Offer",

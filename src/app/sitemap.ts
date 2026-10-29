@@ -1,8 +1,9 @@
 import type { MetadataRoute } from "next";
-import { products } from "@/lib/products";
+import { getCatalogue } from "@/lib/data/catalogue";
 import { site } from "@/lib/site";
 
-export default function sitemap(): MetadataRoute.Sitemap {
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+  const { products } = await getCatalogue();
   const pages = ["", "/selection", "/grossistes", "/maison", "/faq", "/contact", "/tiktok"];
   return [
     ...pages.map((path) => ({
@@ -14,7 +15,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
       url: `${site.url}/selection/${p.slug}`,
       changeFrequency: "weekly" as const,
       priority: 0.8,
-      images: p.images.map((i) => `${site.url}${i.src}`),
+      images: p.images.map((i) => new URL(i.src, site.url).href),
     })),
   ];
 }

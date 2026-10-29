@@ -10,10 +10,10 @@ import {
   useSyncExternalStore,
   type ReactNode,
 } from "react";
-import { getProduct, type Product } from "@/lib/products";
+import type { CartProduct } from "@/lib/products";
 import { cartStore, type CartItem } from "./store";
 
-export type CartLine = CartItem & { product: Product };
+export type CartLine = CartItem & { product: CartProduct };
 
 type CartContextValue = {
   lines: CartLine[];
@@ -22,7 +22,7 @@ type CartContextValue = {
   isOpen: boolean;
   open: () => void;
   close: () => void;
-  add: (product: Product, variant?: string, quantity?: number) => void;
+  add: (product: CartProduct, variant?: string, quantity?: number) => void;
   setQuantity: (key: string, quantity: number) => void;
   clear: () => void;
   toast: string | null;
@@ -30,7 +30,8 @@ type CartContextValue = {
 
 const CartContext = createContext<CartContextValue | null>(null);
 
-export function CartProvider({ children }: { children: ReactNode }) {
+/** `products` : articles en ligne ; un article retiré du site disparaît aussi des paniers. */
+export function CartProvider({ products, children }: { products: CartProduct[]; children: ReactNode }) {
   const items = useSyncExternalStore(
     cartStore.subscribe,
     cartStore.getSnapshot,
@@ -40,16 +41,15 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const [toast, setToast] = useState<string | null>(null);
   const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const lines = useMemo(
-    () =>
-      items.flatMap((item) => {
-        const product = getProduct(item.slug);
-        return product ? [{ ...item, product }] : [];
-      }),
-    [items],
-  );
+  const lines = useMemo(() => {
+    const bySlug = new Map(products.map((p) => [p.slug, p]));
+    return items.flatMap((item) => {
+      const product = bySlug.get(item.slug);
+      return product ? [{ ...item, product }] : [];
+    });
+  }, [items, products]);
 
-  const add = useCallback((product: Product, variant?: string, quantity = 1) => {
+  const add = useCallback((product: CartProduct, variant?: string, quantity = 1) => {
     cartStore.add(product.slug, variant, quantity);
     if (toastTimer.current) clearTimeout(toastTimer.current);
     setToast(`${product.name}${variant ? ` · ${variant}` : ""}`);

@@ -1,0 +1,98 @@
+// Schéma Prisma — Dame de Bijoux World
+// Base PostgreSQL : Docker en local, Neon (via Vercel) en ligne.
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+/// Comptes du back-office (/admin).
+model AdminUser {
+  id             String    @id @default(cuid())
+  name           String
+  email          String    @unique
+  passwordHash   String
+  /// Incrémenté à chaque changement de mot de passe : les sessions ouvertes avant deviennent invalides.
+  sessionVersion Int       @default(0)
+  /// Tentatives de connexion ratées d'affilée ; le compte se bloque un moment au-delà de la limite.
+  failedLogins   Int       @default(0)
+  lockedUntil    DateTime?
+  lastLoginAt    DateTime?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+}
+
+model Category {
+  id        String    @id @default(cuid())
+  /// Identifiant dans les adresses : /selection?categorie=bracelets
+  slug      String    @unique
+  label     String
+  /// Libellé court affiché en pastille sur les photos des cartes produit.
+  tag       String
+  blurb     String
+  /// Pas encore de fiches en ligne : la catégorie se commande sur demande.
+  onRequest Boolean   @default(false)
+  /// Photo de la tuile de la catégorie sur l'accueil.
+  image     String?
+  position  Int       @default(0)
+  products  Product[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
+model Product {
+  id           String           @id @default(cuid())
+  slug         String           @unique
+  name         String
+  category     Category         @relation(fields: [categoryId], references: [id], onDelete: Restrict)
+  categoryId   String
+  /// Prix de vente au détail, en FCFA.
+  price        Int
+  isNew        Boolean          @default(false)
+  /// Décoché : la fiche reste dans le back-office mais disparaît du site.
+  published    Boolean          @default(true)
+  short        String
+  description  String
+  details      String[]
+  /// Choix proposé au client (coloris, finition, modèle…) : nom affiché et formes accordées,
+  /// par exemple « Coloris », « coloris » (5 coloris), « Choisir le coloris ».
+  optionName   String?
+  optionPlural String?
+  optionChoose String?
+  position     Int              @default(0)
+  images       ProductImage[]
+  variants     ProductVariant[]
+  createdAt    DateTime         @default(now())
+  updatedAt    DateTime         @updatedAt
+
+  @@index([categoryId])
+}
+
+model ProductImage {
+  id        String           @id @default(cuid())
+  product   Product          @relation(fields: [productId], references: [id], onDelete: Cascade)
+  productId String
+  url       String
+  alt       String
+  position  Int              @default(0)
+  variants  ProductVariant[]
+
+  @@index([productId])
+}
+
+/// Une valeur du choix proposé (« Dorée », « Noir & doré »…), avec la photo à montrer quand elle est choisie.
+model ProductVariant {
+  id        String        @id @default(cuid())
+  product   Product       @relation(fields: [productId], references: [id], onDelete: Cascade)
+  productId String
+  label     String
+  image     ProductImage? @relation(fields: [imageId], references: [id], onDelete: SetNull)
+  imageId   String?
+  position  Int           @default(0)
+
+  @@index([productId])
+}

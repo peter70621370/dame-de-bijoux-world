@@ -2,7 +2,6 @@
 
 import type { FormEvent } from "react";
 import { IconWhatsApp } from "@/components/icons";
-import { categories } from "@/lib/products";
 import { site } from "@/lib/site";
 import { whatsappUrl } from "@/lib/whatsapp";
 
@@ -12,7 +11,8 @@ const volumes = ["Moins de 20 pièces", "20 à 50 pièces", "50 à 100 pièces",
 const field =
   "mt-1.5 block h-12 w-full rounded-xl border border-filet bg-ivoire px-4 text-base outline-none placeholder:text-douce/70 focus:border-or";
 
-export function WholesaleForm() {
+/** `categories` : noms des catégories du catalogue, proposés en cases à cocher. */
+export function WholesaleForm({ categories }: { categories: string[] }) {
   function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const d = new FormData(e.currentTarget);
@@ -65,11 +65,11 @@ export function WholesaleForm() {
       <fieldset className="mt-6">
         <legend className="text-sm font-medium">Articles qui vous intéressent</legend>
         <div className="mt-3 flex flex-wrap gap-2">
-          {categories.map((c) => (
-            <label key={c.id} className="cursor-pointer">
-              <input type="checkbox" name="articles" value={c.label} className="peer sr-only" />
+          {categories.map((label) => (
+            <label key={label} className="cursor-pointer">
+              <input type="checkbox" name="articles" value={label} className="peer sr-only" />
               <span className="inline-flex min-h-10 items-center rounded-full border border-filet px-4 text-sm transition-colors peer-checked:border-encre peer-checked:bg-encre peer-checked:text-ivoire peer-focus-visible:outline-2 peer-focus-visible:outline-or hover:border-encre">
-                {c.label}
+                {label}
               </span>
             </label>
           ))}

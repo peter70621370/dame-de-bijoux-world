@@ -1,11 +1,12 @@
 import Link from "next/link";
-import { categories } from "@/lib/products";
+import { getCatalogue } from "@/lib/data/catalogue";
 import { nav, site } from "@/lib/site";
 import { greetingUrl } from "@/lib/whatsapp";
 import { IconPhone, IconPin, IconTikTok, IconWhatsApp } from "./icons";
 import { LogoEmbleme } from "./LogoEmbleme";
 
-export function Footer() {
+export async function Footer() {
+  const { categories } = await getCatalogue();
   return (
     <footer className="grain relative overflow-hidden bg-nuit text-ivoire/80">
       <div className="conteneur relative grid grid-cols-2 gap-x-6 gap-y-12 py-16 md:grid-cols-12 md:gap-12 md:py-24">

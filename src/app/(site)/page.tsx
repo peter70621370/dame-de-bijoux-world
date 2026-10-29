@@ -16,28 +16,23 @@ import {
   IconTikTok,
   IconWhatsApp,
 } from "@/components/icons";
-import { categories, formatPrice, minPrice, products } from "@/lib/products";
+import { getCatalogue } from "@/lib/data/catalogue";
+import { formatPrice, minPrice, type Category, type Product } from "@/lib/products";
 import { faq } from "@/lib/faq";
 import { site } from "@/lib/site";
 import { greetingUrl } from "@/lib/whatsapp";
 
-const categoryImages: Partial<Record<string, string>> = {
-  bracelets: "/produits/bracelet-trefle-coloris.jpg",
-  ceintures: "/produits/ceinture-papillons-or.jpg",
-  // Photos libres de Wikimedia Commons, en attendant celles de la boutique (crédits : /mentions-legales).
-  colliers: "/categories/colliers.jpg",
-  bagues: "/categories/bagues.jpg",
-  boucles: "/categories/boucles.jpg",
-  parures: "/categories/parures.jpg",
-};
+/** Article mis en avant sur la photo d'accueil (la photo elle-même reste fixe pour l'instant). */
+const SLUG_VEDETTE = "chaine-de-taille-coquillages-etoiles";
 
-export default function Home() {
+export default async function Home() {
+  const { categories, products } = await getCatalogue();
   return (
     <>
-      <Hero />
-      <Assurances />
-      <Categories />
-      <Selection />
+      <Hero vedette={products.find((p) => p.slug === SLUG_VEDETTE)} />
+      <Assurances prixMin={minPrice(products)} />
+      <Categories categories={categories} />
+      {products.length > 0 && <Selection products={products} />}
       <CommentCommander />
       <Gros />
       <Maison />
@@ -48,7 +43,7 @@ export default function Home() {
   );
 }
 
-function Hero() {
+function Hero({ vedette }: { vedette?: Product }) {
   return (
     <section className="grain relative isolate overflow-hidden bg-nuit text-ivoire">
       <div className="halo absolute inset-0 -z-10" aria-hidden />
@@ -96,28 +91,36 @@ function Hero() {
               className="object-cover"
             />
           </div>
-          <Link
-            href="/selection/chaine-de-taille-coquillages-etoiles"
-            className="absolute top-[8%] right-0 flex animate-monte items-center gap-3 rounded-2xl bg-ivoire py-3 pr-4 pl-3 text-encre shadow-2xl [animation-delay:600ms] hover:bg-sable lg:-right-4"
-          >
-            <span className="grid size-9 place-items-center rounded-full bg-nuit text-or-clair">
-              <IconSparkle width={16} height={16} />
-            </span>
-            <span className="leading-tight">
-              <span className="block text-[0.65rem] uppercase tracking-[0.18em] text-rubis">Nouveauté</span>
-              <span className="block font-serif text-lg">Coquillages & Étoiles</span>
-              <span className="prix block text-xs text-douce">{formatPrice(2500)}</span>
-            </span>
-          </Link>
+          {vedette && (
+            <Link
+              href={`/selection/${vedette.slug}`}
+              className="absolute top-[8%] right-0 flex animate-monte items-center gap-3 rounded-2xl bg-ivoire py-3 pr-4 pl-3 text-encre shadow-2xl [animation-delay:600ms] hover:bg-sable lg:-right-4"
+            >
+              <span className="grid size-9 place-items-center rounded-full bg-nuit text-or-clair">
+                <IconSparkle width={16} height={16} />
+              </span>
+              <span className="leading-tight">
+                {vedette.isNew && (
+                  <span className="block text-[0.65rem] uppercase tracking-[0.18em] text-rubis">Nouveauté</span>
+                )}
+                <span className="block font-serif text-lg">Coquillages & Étoiles</span>
+                <span className="prix block text-xs text-douce">{formatPrice(vedette.price)}</span>
+              </span>
+            </Link>
+          )}
         </div>
       </div>
     </section>
   );
 }
 
-function Assurances() {
+function Assurances({ prixMin }: { prixMin: number | null }) {
   const items = [
-    { icon: IconTag, title: "Petits prix", text: `Des bijoux dès ${formatPrice(minPrice)}.` },
+    {
+      icon: IconTag,
+      title: "Petits prix",
+      text: prixMin !== null ? `Des bijoux dès ${formatPrice(prixMin)}.` : "Des bijoux pour tous les budgets.",
+    },
     { icon: IconBag, title: "Gros & détail", text: "À l’unité ou en quantité, au juste prix." },
     { icon: IconChat, title: "Commande WhatsApp", text: "Votre liste envoyée en un clic." },
     { icon: IconStore, title: "Retrait ou livraison", text: "En boutique à Adewui ou chez vous." },
@@ -163,13 +166,13 @@ function SectionTitle({
   );
 }
 
-function Categories() {
+function Categories({ categories }: { categories: Category[] }) {
   return (
     <section className="conteneur py-20 md:py-28">
       <SectionTitle eyebrow="Univers" title="Trouvez votre pièce" />
       <ul className="mt-12 grid grid-cols-2 gap-3 md:mt-14 md:gap-5 lg:grid-cols-3">
         {categories.map((c, i) => {
-          const img = categoryImages[c.id];
+          const img = c.image;
           return (
             <Reveal as="li" key={c.id} delay={(i % 3) * 90}>
               <Link
@@ -216,7 +219,9 @@ function Categories() {
   );
 }
 
-function Selection() {
+function Selection({ products }: { products: Product[] }) {
+  // Quatre pièces, nouveautés d'abord : une rangée sur ordinateur, quelle que soit la taille du catalogue.
+  const vitrine = [...products].sort((a, b) => Number(!!b.isNew) - Number(!!a.isNew)).slice(0, 4);
   return (
     <section className="border-t border-filet bg-sable/50">
       <div className="conteneur py-20 md:py-28">
@@ -226,7 +231,7 @@ function Selection() {
           link={{ href: "/selection", label: "Tout voir" }}
         />
         <div className="mt-12 grid grid-cols-1 gap-6 sm:grid-cols-2 md:mt-14 lg:grid-cols-4">
-          {products.map((p, i) => (
+          {vitrine.map((p, i) => (
             <Reveal key={p.slug} delay={i * 90}>
               <ProductCard product={p} />
             </Reveal>

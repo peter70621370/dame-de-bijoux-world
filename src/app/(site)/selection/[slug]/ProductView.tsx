@@ -5,7 +5,7 @@ import { useState } from "react";
 import { useCart } from "@/components/cart/CartProvider";
 import { Quantity } from "@/components/cart/CartDrawer";
 import { IconBag, IconChat, IconCheck, IconPlus, IconStore, IconTag, IconWhatsApp } from "@/components/icons";
-import { formatPrice, getCategory, type Product } from "@/lib/products";
+import { formatPrice, type Product } from "@/lib/products";
 import { site } from "@/lib/site";
 import { orderMessage, whatsappUrl } from "@/lib/whatsapp";
 
@@ -92,7 +92,7 @@ export function ProductView({ product }: { product: Product }) {
       {/* Infos et achat */}
       <div className="lg:col-span-5">
         <div className="lg:sticky lg:top-28">
-          <p className="eyebrow text-or-fonce">{getCategory(product.category).label}</p>
+          <p className="eyebrow text-or-fonce">{product.categoryLabel}</p>
           <h1 className="titre mt-4 text-[clamp(2.6rem,5vw,4rem)]">{product.name}</h1>
           <p className="prix mt-4 font-serif text-3xl">{formatPrice(product.price)}</p>
           <p className="mt-1 text-sm text-douce">Prix à l’unité · tarifs de gros sur demande</p>

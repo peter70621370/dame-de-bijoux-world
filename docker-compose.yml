@@ -1,0 +1,23 @@
+# Base PostgreSQL pour le développement local (en ligne, le site utilise Neon via Vercel).
+# Les identifiants viennent du fichier .env (voir .env.example).
+services:
+  db:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:?Renseigner POSTGRES_USER dans .env (voir .env.example)}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Renseigner POSTGRES_PASSWORD dans .env (voir .env.example)}
+      POSTGRES_DB: ${POSTGRES_DB:?Renseigner POSTGRES_DB dans .env (voir .env.example)}
+    ports:
+      # Limité à cette machine : `npm run dev` s'y connecte, le réseau local non.
+      - "127.0.0.1:5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  postgres-data:

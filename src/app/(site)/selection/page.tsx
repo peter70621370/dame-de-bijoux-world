@@ -4,7 +4,7 @@ import { PageHeader } from "@/components/PageHeader";
 import { ProductCard } from "@/components/ProductCard";
 import { Reveal } from "@/components/Reveal";
 import { IconWhatsApp } from "@/components/icons";
-import { categories, products } from "@/lib/products";
+import { getCatalogue } from "@/lib/data/catalogue";
 import { whatsappUrl } from "@/lib/whatsapp";
 import { site } from "@/lib/site";
 import { Catalog } from "./Catalog";
@@ -16,7 +16,8 @@ export const metadata: Metadata = {
   alternates: { canonical: "/selection" },
 };
 
-export default function SelectionPage() {
+export default async function SelectionPage() {
+  const { products, categories } = await getCatalogue();
   return (
     <>
       <PageHeader
@@ -35,7 +36,7 @@ export default function SelectionPage() {
           </div>
         }
       >
-        <Catalog />
+        <Catalog products={products} categories={categories} />
       </Suspense>
 
       <section id="sur-demande" className="border-t border-filet bg-sable/50">

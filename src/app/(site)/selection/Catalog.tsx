@@ -4,7 +4,7 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useMemo, useState } from "react";
 import { ProductCard } from "@/components/ProductCard";
 import { IconClose, IconSearch, IconWhatsApp } from "@/components/icons";
-import { categories, products, type Category, type Product } from "@/lib/products";
+import type { Category, Product } from "@/lib/products";
 import { site } from "@/lib/site";
 import { whatsappUrl } from "@/lib/whatsapp";
 
@@ -32,28 +32,29 @@ function terms(query: string) {
     .map((w) => (w.length > 3 ? w.replace(/[sx]$/, "") : w));
 }
 
-const productText = new Map(
-  products.map((p) => {
-    const c = categories.find((c) => c.id === p.category)!;
-    const parts = [p.name, p.short, p.description, ...p.details, c.label, c.tag, ...(p.option?.values.map((v) => v.label) ?? [])];
-    return [p.slug, normalize(parts.join(" "))];
-  }),
-);
-
-function matches(product: Product, words: string[]) {
-  const text = productText.get(product.slug)!;
-  return words.every((w) => text.includes(w));
+/** Texte cherchable d'une fiche : nom, descriptions, catégorie et choix proposés. */
+function searchableText(p: Product) {
+  const parts = [
+    p.name,
+    p.short,
+    p.description,
+    ...p.details,
+    p.categoryLabel,
+    p.categoryTag,
+    ...(p.option?.values.map((v) => v.label) ?? []),
+  ];
+  return normalize(parts.join(" "));
 }
 
 /** Catégories sur demande évoquées par la recherche (« bague dorée » → Bagues). */
-function requestedCategories(words: string[]): Category[] {
+function requestedCategories(categories: Category[], words: string[]): Category[] {
   return categories.filter((c) => {
     const text = normalize(`${c.label} ${c.tag}`);
     return c.onRequest && words.some((w) => w.length > 2 && text.includes(w));
   });
 }
 
-export function Catalog() {
+export function Catalog({ products, categories }: { products: Product[]; categories: Category[] }) {
   const params = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
@@ -89,15 +90,16 @@ export function Catalog() {
   }
 
   const words = useMemo(() => terms(query), [query]);
+  const texts = useMemo(() => new Map(products.map((p) => [p.slug, searchableText(p)])), [products]);
 
   const visible = useMemo(() => {
-    const list = products.filter((p) => matches(p, words));
+    const list = products.filter((p) => words.every((w) => texts.get(p.slug)!.includes(w)));
     if (sort === "prix-croissant") return [...list].sort((a, b) => a.price - b.price);
     if (sort === "prix-decroissant") return [...list].sort((a, b) => b.price - a.price);
     return [...list].sort((a, b) => Number(!!b.isNew) - Number(!!a.isNew));
-  }, [words, sort]);
+  }, [products, texts, words, sort]);
 
-  const onRequest = visible.length === 0 ? requestedCategories(words) : [];
+  const onRequest = visible.length === 0 ? requestedCategories(categories, words) : [];
   const trimmed = query.trim();
 
   return (

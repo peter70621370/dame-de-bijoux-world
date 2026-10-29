@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { PageHeader } from "@/components/PageHeader";
 import { Reveal } from "@/components/Reveal";
 import { IconCrown, IconSparkle, IconStore, IconTag } from "@/components/icons";
+import { getCatalogue } from "@/lib/data/catalogue";
 import { WholesaleForm } from "./WholesaleForm";
 
 export const metadata: Metadata = {
@@ -18,7 +19,8 @@ const profils = [
   { icon: IconSparkle, title: "Cadeaux d’entreprise", text: "Des attentions élégantes pour vos équipes et vos clientes." },
 ];
 
-export default function GrossistesPage() {
+export default async function GrossistesPage() {
+  const { categories } = await getCatalogue();
   return (
     <>
       <PageHeader
@@ -66,7 +68,7 @@ export default function GrossistesPage() {
             </ol>
           </Reveal>
           <Reveal delay={120} className="lg:col-span-6 lg:col-start-7">
-            <WholesaleForm />
+            <WholesaleForm categories={categories.map((c) => c.label)} />
           </Reveal>
         </div>
       </section>

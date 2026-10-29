@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import { formatPrice, getCategory, type Product } from "@/lib/products";
+import { formatPrice, type Product } from "@/lib/products";
 import { productEnquiryUrl } from "@/lib/whatsapp";
 import { ShareButton } from "./ShareButton";
 import { IconSparkle, IconWhatsApp } from "./icons";
@@ -34,7 +34,7 @@ export function ProductCard({ product, priority = false }: { product: Product; p
           )}
         </Link>
         <span className="pointer-events-none absolute top-3 left-3 rounded-full bg-white/95 px-3 py-1 text-xs font-medium text-encre shadow-sm">
-          {getCategory(product.category).tag}
+          {product.categoryTag}
         </span>
         {product.isNew && (
           <span className="pointer-events-none absolute top-3 right-3 rounded-full bg-rubis px-3 py-1 text-xs font-semibold text-white shadow-sm">
