@@ -6,6 +6,7 @@ import { useState } from "react";
 import { ImageOff, Search } from "lucide-react";
 import { BasculeEnLigne } from "@/components/admin/BasculeEnLigne";
 import { Pastille, styleChamp } from "@/components/admin/ui";
+import { basculerEnLigne } from "@/lib/actions/articles";
 import { discountPercent, formatPrice } from "@/lib/products";
 
 export type ArticleListe = {
@@ -146,7 +147,11 @@ export function ListeArticles({
                   )}
                 </span>
               </Link>
-              <BasculeEnLigne id={a.id} nom={a.name} enLigne={a.published} />
+              <BasculeEnLigne
+                etiquette={`« ${a.name} » en ligne`}
+                enLigne={a.published}
+                action={(enLigne) => basculerEnLigne(a.id, enLigne)}
+              />
             </li>
           ))}
         </ul>

@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import { CarteActualite } from "@/components/CarteActualite";
 import { ContactCards } from "@/components/ContactCards";
 import { ProductCard } from "@/components/ProductCard";
 import { Reveal } from "@/components/Reveal";
@@ -16,6 +17,7 @@ import {
   IconTikTok,
   IconWhatsApp,
 } from "@/components/icons";
+import { getActualitesPubliees, type Actualite } from "@/lib/data/actualites";
 import { getCatalogue } from "@/lib/data/catalogue";
 import { formatPrice, minPrice, type Category, type Product } from "@/lib/products";
 import { faq } from "@/lib/faq";
@@ -26,13 +28,14 @@ import { greetingUrl } from "@/lib/whatsapp";
 const SLUG_VEDETTE = "chaine-de-taille-coquillages-etoiles";
 
 export default async function Home() {
-  const { categories, products } = await getCatalogue();
+  const [{ categories, products }, actualites] = await Promise.all([getCatalogue(), getActualitesPubliees()]);
   return (
     <>
       <Hero vedette={products.find((p) => p.slug === SLUG_VEDETTE)} />
       <Assurances prixMin={minPrice(products)} />
       <Categories categories={categories} />
       {products.length > 0 && <Selection products={products} />}
+      {actualites.length > 0 && <Actualites actualites={actualites.slice(0, 3)} />}
       <CommentCommander />
       <Gros />
       <Maison />
@@ -237,6 +240,27 @@ function Selection({ products }: { products: Product[] }) {
             </Reveal>
           ))}
         </div>
+      </div>
+    </section>
+  );
+}
+
+function Actualites({ actualites }: { actualites: Actualite[] }) {
+  return (
+    <section className="border-b border-filet">
+      <div className="conteneur py-20 md:py-28">
+        <SectionTitle
+          eyebrow="Actualités"
+          title="Arrivages & nouvelles"
+          link={{ href: "/actualites", label: "Toutes les actualités" }}
+        />
+        <ul className="mt-12 grid grid-cols-1 gap-6 sm:grid-cols-2 md:mt-14 lg:grid-cols-3">
+          {actualites.map((a, i) => (
+            <Reveal as="li" key={a.slug} delay={i * 90}>
+              <CarteActualite actualite={a} niveau="h3" />
+            </Reveal>
+          ))}
+        </ul>
       </div>
     </section>
   );

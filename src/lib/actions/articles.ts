@@ -8,7 +8,15 @@ import { CATALOGUE_TAG } from "@/lib/data/catalogue";
 import { prisma } from "@/lib/prisma";
 import { slugify, slugLibre } from "@/lib/slug";
 import { estPhotoAutorisee, supprimerPhoto } from "@/lib/stockage";
-import { enJson, erreursParChamp, finDeJournee, montant, montantFacultatif, type EtatFormulaire } from "./formulaires";
+import {
+  enJson,
+  erreursParChamp,
+  finDeJournee,
+  montant,
+  montantFacultatif,
+  premierePhrase,
+  type EtatFormulaire,
+} from "./formulaires";
 
 const schemaArticle = z
   .object({
@@ -62,12 +70,6 @@ const schemaArticle = z
 function pluriel(nom: string) {
   const mot = nom.toLowerCase();
   return /[sxz]$/.test(mot) ? mot : `${mot}s`;
-}
-
-/** Première phrase de la description, pour les aperçus (Google, partages) quand le résumé est vide. */
-function premierePhrase(texte: string) {
-  const phrase = texte.split(/(?<=[.!?])\s/)[0] ?? "";
-  return phrase.length > 160 ? `${phrase.slice(0, 157).trimEnd()}…` : phrase;
 }
 
 function legende(nom: string, position: number, variante?: string) {

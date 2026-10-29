@@ -1,12 +1,13 @@
 import Link from "next/link";
+import { getActualitesPubliees } from "@/lib/data/actualites";
 import { getCatalogue } from "@/lib/data/catalogue";
-import { nav, site } from "@/lib/site";
+import { navigation, site } from "@/lib/site";
 import { greetingUrl } from "@/lib/whatsapp";
 import { IconPhone, IconPin, IconTikTok, IconWhatsApp } from "./icons";
 import { LogoEmbleme } from "./LogoEmbleme";
 
 export async function Footer() {
-  const { categories } = await getCatalogue();
+  const [{ categories }, actualites] = await Promise.all([getCatalogue(), getActualitesPubliees()]);
   return (
     <footer className="grain relative overflow-hidden bg-nuit text-ivoire/80">
       <div className="conteneur relative grid grid-cols-2 gap-x-6 gap-y-12 py-16 md:grid-cols-12 md:gap-12 md:py-24">
@@ -56,7 +57,7 @@ export async function Footer() {
         <div className="md:col-span-2">
           <p className="eyebrow text-or-clair">Explorer</p>
           <ul className="mt-4 space-y-1 text-sm">
-            {nav.map((item) => (
+            {navigation(actualites.length > 0).map((item) => (
               <li key={item.href}>
                 <Link href={item.href} className="inline-block py-1.5 hover:text-or-clair">
                   {item.label}

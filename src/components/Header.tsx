@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
-import { nav, site } from "@/lib/site";
+import { navigation, site } from "@/lib/site";
 import { greetingUrl } from "@/lib/whatsapp";
 import { useCart } from "./cart/CartProvider";
 import { LogoEmbleme } from "./LogoEmbleme";
@@ -31,7 +31,9 @@ export function Logo({ light = false }: { light?: boolean }) {
   );
 }
 
-export function Header() {
+/** `actualites` : au moins une actualité publiée, la rubrique entre dans le menu. */
+export function Header({ actualites }: { actualites: boolean }) {
+  const nav = navigation(actualites);
   const pathname = usePathname();
   const cart = useCart();
   const [menuOpen, setMenuOpen] = useState(false);
@@ -78,7 +80,7 @@ export function Header() {
             <Logo />
           </div>
 
-          <nav aria-label="Navigation principale" className="hidden items-center gap-7 lg:flex xl:gap-9">
+          <nav aria-label="Navigation principale" className="hidden items-center gap-4 lg:flex xl:gap-7">
             {nav.map((item) => (
               <Link
                 key={item.href}
@@ -94,7 +96,7 @@ export function Header() {
           <div className="flex items-center gap-1 md:gap-3">
             <a
               href={site.phoneHref}
-              className="eyebrow hidden items-center gap-2 px-2 py-2 font-times text-[0.75rem] tracking-[0.16em] hover:text-or-fonce xl:flex"
+              className="eyebrow hidden items-center gap-2 px-2 py-2 font-times text-[0.75rem] tracking-[0.16em] whitespace-nowrap hover:text-or-fonce xl:flex"
             >
               <IconPhone width={16} height={16} />
               {site.phone}
@@ -106,7 +108,10 @@ export function Header() {
               aria-label={`Voir ma commande : ${cart.count} article${cart.count > 1 ? "s" : ""}`}
             >
               <IconBag width={22} height={22} />
-              <span className="eyebrow hidden font-times text-[0.75rem] tracking-[0.16em] md:inline">Commande</span>
+              {/* Libellé sur tablette seulement : dès que le menu s'affiche, la place va aux liens et au numéro. */}
+              <span className="eyebrow hidden font-times text-[0.75rem] tracking-[0.16em] md:inline lg:hidden">
+                Commande
+              </span>
               <span
                 className={`prix absolute top-1 left-5 grid min-w-[1.15rem] place-items-center rounded-full bg-rubis px-1 text-[0.65rem] font-semibold leading-[1.15rem] text-white transition-transform duration-300 md:static md:ml-0.5 ${
                   cart.count > 0 ? "scale-100" : "scale-0"

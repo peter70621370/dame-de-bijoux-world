@@ -7,7 +7,8 @@ import path from "node:path";
 // (hors de public/, ignoré par git) et servies par src/app/televersements/[...chemin]/route.ts.
 // À la mise en ligne, ce module les enverra vers Vercel Blob : le reste du site ne manipule que leurs adresses.
 
-export type DossierPhotos = "produits" | "categories";
+export const DOSSIERS_PHOTOS = ["produits", "categories", "annonces", "actualites"] as const;
+export type DossierPhotos = (typeof DOSSIERS_PHOTOS)[number];
 
 const TYPES = { jpg: "image/jpeg", png: "image/png", webp: "image/webp" } as const;
 export type ExtensionPhoto = keyof typeof TYPES;

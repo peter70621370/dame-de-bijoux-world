@@ -70,6 +70,7 @@ model Product {
   position     Int              @default(0)
   images       ProductImage[]
   variants     ProductVariant[]
+  posts        Post[]
   createdAt    DateTime         @default(now())
   updatedAt    DateTime         @updatedAt
 
@@ -99,4 +100,44 @@ model ProductVariant {
   position  Int           @default(0)
 
   @@index([productId])
+}
+
+/// Bandeau en haut du site (id « bandeau ») et fenêtre à l'ouverture (id « fenetre ») : une fiche de chaque.
+model Announcement {
+  id        String    @id
+  /// Coché : affiché sur le site, entre `startsAt` et `endsAt` quand elles sont renseignées.
+  enabled   Boolean   @default(false)
+  /// Titre de la fenêtre (le bandeau n'en a pas).
+  title     String    @default("")
+  text      String    @default("")
+  /// Photo de la fenêtre.
+  image     String?
+  /// Bouton ou lien : libellé et adresse (page du site comme « /selection », ou adresse complète).
+  linkLabel String    @default("")
+  linkUrl   String    @default("")
+  /// Couleur du bandeau : « nuit », « or » ou « rubis ».
+  tone      String    @default("nuit")
+  /// Premier jour (dès minuit) et dernier jour (jusqu'à minuit), heure de Lomé ; vides : sans limite.
+  startsAt  DateTime?
+  endsAt    DateTime?
+  updatedAt DateTime  @updatedAt
+}
+
+/// Actualités et arrivages, publiés sur /actualites.
+model Post {
+  id          String    @id @default(cuid())
+  slug        String    @unique
+  title       String
+  /// Une ou deux phrases : liste des actualités, Google et aperçus de partage.
+  excerpt     String
+  /// Texte complet ; une ligne vide sépare deux paragraphes.
+  body        String
+  image       String?
+  published   Boolean   @default(true)
+  /// Date affichée sur l'actualité ; la liste va de la plus récente à la plus ancienne.
+  publishedAt DateTime  @default(now())
+  /// Articles présentés avec l'actualité (un arrivage, une sélection…).
+  products    Product[]
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
 }

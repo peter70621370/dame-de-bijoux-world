@@ -4,7 +4,7 @@ import { redirect } from "next/navigation";
 import { NouvelleVisite } from "@/components/admin/NouvelleVisite";
 import { EnTete } from "@/components/admin/ui";
 import { enregistrerPromotion } from "@/lib/actions/promotions";
-import { getArticlesPourPromo } from "@/lib/data/admin";
+import { getChoixArticles } from "@/lib/data/admin";
 import { FormulairePromotion } from "../FormulairePromotion";
 
 export const metadata: Metadata = {
@@ -12,7 +12,7 @@ export const metadata: Metadata = {
 };
 
 export default async function NouvellePromotionPage({ searchParams }: PageProps<"/admin/promotions/nouvelle">) {
-  const [{ article, prix }, articles] = await Promise.all([searchParams, getArticlesPourPromo()]);
+  const [{ article, prix }, articles] = await Promise.all([searchParams, getChoixArticles()]);
   const choisi = articles.find((a) => a.id === article);
   // Un article déjà en promotion se modifie depuis sa propre page.
   if (choisi && choisi.promoPrice !== null) redirect(`/admin/promotions/${choisi.id}`);

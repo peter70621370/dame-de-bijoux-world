@@ -1,7 +1,9 @@
 import "server-only";
+import type { GroupeDestinations, TypeAnnonce } from "@/lib/annonces";
 import { verifySession } from "@/lib/dal";
 import { prisma } from "@/lib/prisma";
 import { isPromoActive } from "@/lib/products";
+import { greetingUrl } from "@/lib/whatsapp";
 
 // Lectures du back-office : toujours fraîches (pas de cache), et réservées aux comptes connectés.
 
@@ -121,8 +123,8 @@ export async function getPromotions() {
   };
 }
 
-/** Articles proposés dans le formulaire de promotion, rangés par catégorie dans l'ordre du site. */
-export async function getArticlesPourPromo() {
+/** Articles proposés dans les formulaires (promotion, actualité), rangés par catégorie dans l'ordre du site. */
+export async function getChoixArticles() {
   await verifySession();
 
   const produits = await prisma.product.findMany({
@@ -168,6 +170,95 @@ export async function getArticle(id: string) {
       variants: { orderBy: { position: "asc" } },
     },
   });
+}
+
+/** Bandeau et fenêtre tels qu'enregistrés ; null tant qu'ils n'ont jamais été rédigés. */
+export async function getAnnonces() {
+  await verifySession();
+  const annonces = await prisma.announcement.findMany();
+  return {
+    bandeau: annonces.find((a) => a.id === "bandeau") ?? null,
+    fenetre: annonces.find((a) => a.id === "fenetre") ?? null,
+  };
+}
+
+export async function getAnnonce(id: TypeAnnonce) {
+  await verifySession();
+  return prisma.announcement.findUnique({ where: { id } });
+}
+
+/** Pages proposées comme destination d'un lien (bandeau, fenêtre), chacune avec un texte de lien qui lui va. */
+export async function getDestinations(): Promise<GroupeDestinations[]> {
+  await verifySession();
+
+  const [categories, produits, actualites] = await Promise.all([
+    prisma.category.findMany({
+      orderBy: [{ position: "asc" }, { createdAt: "asc" }],
+      select: { slug: true, label: true },
+    }),
+    prisma.product.findMany({
+      where: { published: true, images: { some: {} } },
+      orderBy: [{ category: { position: "asc" } }, { category: { createdAt: "asc" } }, { position: "asc" }, { createdAt: "desc" }],
+      select: { slug: true, name: true },
+    }),
+    prisma.post.findMany({
+      where: { published: true },
+      orderBy: [{ publishedAt: "desc" }, { createdAt: "desc" }],
+      select: { slug: true, title: true },
+    }),
+  ]);
+
+  const groupes: GroupeDestinations[] = [
+    {
+      groupe: "Pages",
+      destinations: [
+        { label: "Sélection", url: "/selection", texte: "Voir la sélection" },
+        ...(actualites.length > 0 ? [{ label: "Actualités", url: "/actualites", texte: "Lire les actualités" }] : []),
+        { label: "Vente en gros", url: "/grossistes", texte: "Tarifs de gros" },
+        { label: "Contact", url: "/contact", texte: "Nous contacter" },
+        { label: "WhatsApp de la boutique", url: greetingUrl, texte: "Écrire sur WhatsApp" },
+      ],
+    },
+    {
+      groupe: "Catégories",
+      destinations: categories.map((c) => ({ label: c.label, url: `/selection?categorie=${c.slug}`, texte: "Découvrir" })),
+    },
+    {
+      groupe: "Articles",
+      destinations: produits.map((p) => ({ label: p.name, url: `/selection/${p.slug}`, texte: "Voir l’article" })),
+    },
+    {
+      groupe: "Actualités",
+      destinations: actualites.map((a) => ({ label: a.title, url: `/actualites/${a.slug}`, texte: "Lire la suite" })),
+    },
+  ];
+  return groupes.filter((g) => g.destinations.length > 0);
+}
+
+/** Actualités, de la plus récente à la plus ancienne, avec leurs articles comptés. */
+export async function getActualites() {
+  await verifySession();
+
+  const posts = await prisma.post.findMany({
+    orderBy: [{ publishedAt: "desc" }, { createdAt: "desc" }],
+    select: {
+      id: true,
+      slug: true,
+      title: true,
+      image: true,
+      published: true,
+      publishedAt: true,
+      _count: { select: { products: true } },
+    },
+  });
+
+  return posts.map(({ _count, image, ...p }) => ({ ...p, image: image ?? undefined, articles: _count.products }));
+}
+
+/** Actualité complète pour son formulaire, ou null si elle n'existe pas. */
+export async function getActualite(id: string) {
+  await verifySession();
+  return prisma.post.findUnique({ where: { id }, include: { products: { select: { id: true } } } });
 }
 
 export async function getTableauDeBord() {

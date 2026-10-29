@@ -1,6 +1,8 @@
 // Types du catalogue et fonctions de mise en forme, utilisables côté navigateur.
 // Les données viennent de la base : voir src/lib/data/catalogue.ts.
 
+import { formatJour } from "./dates";
+
 export type Category = {
   /** Identifiant dans les adresses : /selection?categorie=bracelets */
   id: string;
@@ -67,11 +69,9 @@ export function discountPercent(price: number, regularPrice: number) {
   return Math.round((1 - price / regularPrice) * 100);
 }
 
-const promoEnd = new Intl.DateTimeFormat("fr-FR", { day: "numeric", month: "long", timeZone: "Africa/Lome" });
-
 /** Dernier jour d'une promotion, à l'heure de Lomé : « 15 novembre ». */
 export function formatPromoEnd(iso: string) {
-  return promoEnd.format(new Date(iso));
+  return formatJour(iso);
 }
 
 export function relatedProducts(product: Product, products: Product[], limit = 3) {

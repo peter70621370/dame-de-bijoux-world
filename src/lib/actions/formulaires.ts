@@ -68,3 +68,14 @@ export function enJson<T extends z.ZodType>(schema: T) {
 export function finDeJournee(jour: string) {
   return new Date(`${jour}T23:59:59.999Z`);
 }
+
+/** Minuit au début du jour choisi (AAAA-MM-JJ), à Lomé. */
+export function debutDeJournee(jour: string) {
+  return new Date(`${jour}T00:00:00.000Z`);
+}
+
+/** Première phrase d'un texte, pour les aperçus (Google, partages) quand le résumé est vide. */
+export function premierePhrase(texte: string) {
+  const phrase = texte.split(/(?<=[.!?])\s/)[0] ?? "";
+  return phrase.length > 160 ? `${phrase.slice(0, 157).trimEnd()}…` : phrase;
+}

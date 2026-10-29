@@ -23,6 +23,17 @@ export function productEnquiryUrl(product: Product) {
   );
 }
 
+/** Message du bouton WhatsApp d'une actualité : son titre et son lien. */
+export function newsEnquiryUrl(actualite: { slug: string; titre: string }) {
+  return whatsappUrl(
+    [
+      `Bonjour ${site.name} !`,
+      `Je vous écris au sujet de « ${actualite.titre} ».`,
+      `${site.url}/actualites/${actualite.slug}`,
+    ].join("\n"),
+  );
+}
+
 export const greetingUrl = whatsappUrl(
   `Bonjour ${site.name}, je souhaite des informations.`,
 );

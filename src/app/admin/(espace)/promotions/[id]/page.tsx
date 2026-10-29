@@ -5,7 +5,7 @@ import { BoutonAction } from "@/components/admin/BoutonAction";
 import { NouvelleVisite } from "@/components/admin/NouvelleVisite";
 import { EnTete } from "@/components/admin/ui";
 import { arreterPromotion, enregistrerPromotion } from "@/lib/actions/promotions";
-import { getArticlesPourPromo } from "@/lib/data/admin";
+import { getChoixArticles } from "@/lib/data/admin";
 import { FormulairePromotion } from "../FormulairePromotion";
 
 export const metadata: Metadata = {
@@ -13,7 +13,7 @@ export const metadata: Metadata = {
 };
 
 export default async function PromotionPage({ params }: PageProps<"/admin/promotions/[id]">) {
-  const [{ id }, articles] = await Promise.all([params, getArticlesPourPromo()]);
+  const [{ id }, articles] = await Promise.all([params, getChoixArticles()]);
   const article = articles.find((a) => a.id === id);
   if (!article) notFound();
   // Promotion terminée entre-temps : on propose de la relancer.

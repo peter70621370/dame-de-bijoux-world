@@ -1,7 +1,7 @@
 "use client";
 
-import Link from "next/link";
 import { startTransition, useActionState, useEffect, useId, useRef, useState, type FormEvent } from "react";
+import { BarreEnregistrement } from "@/components/admin/BarreEnregistrement";
 import { ChampPhotos } from "@/components/admin/ChampPhotos";
 import { Carte, Champ, Interrupteur, propsErreur, styleChamp } from "@/components/admin/ui";
 import type { EtatFormulaire } from "@/lib/actions/formulaires";
@@ -135,32 +135,9 @@ export function FormulaireCategorie({
         />
       </Carte>
 
-      <div className="sticky bottom-0 z-10 -mx-4 border-t border-filet bg-ivoire/95 px-4 py-3 backdrop-blur-md md:-mx-8 md:px-8">
-        <div className="mx-auto flex max-w-3xl flex-wrap items-center justify-end gap-x-3 gap-y-2">
-          {etat?.message && !enCours && (
-            <p role="alert" className="w-full text-sm text-rubis sm:mr-auto sm:w-auto">
-              {etat.message}
-            </p>
-          )}
-          {etat?.ok && !enCours && (
-            <p role="status" className="w-full text-sm text-[#187a42] sm:mr-auto sm:w-auto">
-              {etat.ok}
-            </p>
-          )}
-          <Link href="/admin/categories" className="bouton bouton-contour flex-1 px-4 sm:flex-none sm:px-7">
-            Retour
-          </Link>
-          <button type="submit" disabled={enCours || envoiPhotos} className="bouton bouton-nuit flex-[2] px-4 sm:flex-none sm:px-7">
-            {enCours
-              ? "Enregistrement…"
-              : envoiPhotos
-                ? "Envoi de la photo…"
-                : nouvelle
-                  ? "Créer la catégorie"
-                  : "Enregistrer"}
-          </button>
-        </div>
-      </div>
+      <BarreEnregistrement etat={etat} enCours={enCours} retour="/admin/categories" bloque={envoiPhotos}>
+        {enCours ? "Enregistrement…" : envoiPhotos ? "Envoi de la photo…" : nouvelle ? "Créer la catégorie" : "Enregistrer"}
+      </BarreEnregistrement>
     </form>
   );
 }

@@ -1,7 +1,7 @@
 "use server";
 
 import { verifySession } from "@/lib/dal";
-import { enregistrerPhoto, type DossierPhotos, type ExtensionPhoto } from "@/lib/stockage";
+import { DOSSIERS_PHOTOS, enregistrerPhoto, type DossierPhotos, type ExtensionPhoto } from "@/lib/stockage";
 
 const POIDS_MAX = 5 * 1024 * 1024;
 
@@ -20,7 +20,7 @@ export async function televerserPhoto(
   formData: FormData,
 ): Promise<{ url: string } | { erreur: string }> {
   await verifySession();
-  if (dossier !== "produits" && dossier !== "categories") return { erreur: "Destination inconnue." };
+  if (!DOSSIERS_PHOTOS.includes(dossier)) return { erreur: "Destination inconnue." };
 
   const photo = formData.get("photo");
   if (!(photo instanceof File) || photo.size === 0) return { erreur: "Aucune photo reçue." };

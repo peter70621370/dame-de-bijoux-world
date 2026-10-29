@@ -1,9 +1,9 @@
 "use client";
 
 import Image from "next/image";
-import Link from "next/link";
 import { startTransition, useActionState, useEffect, useId, useRef, useState, type FormEvent } from "react";
 import { ImageOff } from "lucide-react";
+import { BarreEnregistrement } from "@/components/admin/BarreEnregistrement";
 import { Carte, Champ, propsErreur, styleChamp } from "@/components/admin/ui";
 import type { EtatFormulaire } from "@/lib/actions/formulaires";
 import { discountPercent, formatPrice, formatPromoEnd } from "@/lib/products";
@@ -187,21 +187,9 @@ export function FormulairePromotion({
         )}
       </Carte>
 
-      <div className="sticky bottom-0 z-10 -mx-4 border-t border-filet bg-ivoire/95 px-4 py-3 backdrop-blur-md md:-mx-8 md:px-8">
-        <div className="mx-auto flex max-w-3xl flex-wrap items-center justify-end gap-x-3 gap-y-2">
-          {etat?.message && !enCours && (
-            <p role="alert" className="w-full text-sm text-rubis sm:mr-auto sm:w-auto">
-              {etat.message}
-            </p>
-          )}
-          <Link href="/admin/promotions" className="bouton bouton-contour flex-1 px-4 sm:flex-none sm:px-7">
-            Retour
-          </Link>
-          <button type="submit" disabled={enCours} className="bouton bouton-nuit flex-[2] px-4 sm:flex-none sm:px-7">
-            {enCours ? "Enregistrement…" : nouvelle ? "Lancer la promotion" : "Enregistrer"}
-          </button>
-        </div>
-      </div>
+      <BarreEnregistrement etat={etat} enCours={enCours} retour="/admin/promotions">
+        {enCours ? "Enregistrement…" : nouvelle ? "Lancer la promotion" : "Enregistrer"}
+      </BarreEnregistrement>
     </form>
   );
 }

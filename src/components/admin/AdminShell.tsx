@@ -39,8 +39,8 @@ const SECTIONS: { titre?: string; liens: Lien[] }[] = [
   {
     titre: "Annonces",
     liens: [
-      { href: "/admin/annonces", label: "Bandeau & fenêtre", icon: Megaphone },
-      { href: "/admin/actualites", label: "Actualités", icon: Newspaper },
+      { href: "/admin/annonces", label: "Bandeau & fenêtre", icon: Megaphone, pret: true },
+      { href: "/admin/actualites", label: "Actualités", icon: Newspaper, pret: true },
     ],
   },
   {

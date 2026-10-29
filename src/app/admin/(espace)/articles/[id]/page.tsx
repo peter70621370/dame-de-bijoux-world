@@ -75,7 +75,13 @@ export default async function ArticlePage({ params }: PageProps<"/admin/articles
           action={supprimerArticle.bind(null, produit.id)}
           libelle="Supprimer l’article"
           titre="Supprimer cet article ?"
-          message={`« ${produit.name} » et ses photos seront effacés du site et du back-office. C’est définitif : pour le retirer seulement un temps, décochez plutôt « En ligne ».`}
+          message={`« ${produit.name} »${
+            produit.images.length > 1
+              ? " et ses photos seront effacés"
+              : produit.images.length === 1
+                ? " et sa photo seront effacés"
+                : " sera effacé"
+          } du site et du back-office. C’est définitif : pour le retirer seulement un temps, décochez plutôt « En ligne ».`}
         />
       </section>
     </div>

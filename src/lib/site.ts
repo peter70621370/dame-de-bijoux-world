@@ -38,10 +38,15 @@ export const site = {
     "Retrait en boutique à Adewui ou livraison : nous vous indiquons les options et les frais selon votre quartier.",
 } as const;
 
-export const nav = [
+const nav = [
   { href: "/selection", label: "Sélection" },
   { href: "/grossistes", label: "Vente en gros" },
   { href: "/maison", label: "La Maison" },
   { href: "/faq", label: "FAQ" },
   { href: "/contact", label: "Contact" },
-] as const;
+];
+
+/** Menu du site ; « Actualités » n'y figure qu'une fois la première actualité publiée. */
+export function navigation(avecActualites: boolean) {
+  return avecActualites ? [nav[0], { href: "/actualites", label: "Actualités" }, ...nav.slice(1)] : nav;
+}

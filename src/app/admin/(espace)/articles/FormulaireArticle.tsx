@@ -1,11 +1,12 @@
 "use client";
 
 import Image from "next/image";
-import Link from "next/link";
-import { startTransition, useActionState, useEffect, useId, useRef, useState, type FormEvent } from "react";
+import { startTransition, useEffect, useId, useRef, useState, type FormEvent } from "react";
 import { Plus, Trash2 } from "lucide-react";
+import { BarreEnregistrement } from "@/components/admin/BarreEnregistrement";
 import { ChampPhotos, type Photo } from "@/components/admin/ChampPhotos";
 import { Carte, Champ, Interrupteur, propsErreur, styleChamp } from "@/components/admin/ui";
+import { useEnregistrement } from "@/components/admin/useEnregistrement";
 import type { EtatFormulaire } from "@/lib/actions/formulaires";
 import { discountPercent, formatPrice, formatPromoEnd } from "@/lib/products";
 
@@ -43,14 +44,7 @@ export function FormulaireArticle({
   action: (etat: EtatFormulaire, formData: FormData) => Promise<EtatFormulaire>;
   nouveau: boolean;
 }) {
-  // Version de la fiche sur laquelle portent les champs : le serveur refuse d'enregistrer si elle a changé ailleurs.
-  const version = useRef(article.version);
-  const [etat, envoyer, enCours] = useActionState(async (precedent: EtatFormulaire, donnees: FormData) => {
-    donnees.set("version", version.current);
-    const resultat = await action(precedent, donnees);
-    if (resultat?.version) version.current = resultat.version;
-    return resultat;
-  }, undefined);
+  const [etat, envoyer, enCours] = useEnregistrement(action, article.version);
   const formulaire = useRef<HTMLFormElement>(null);
   // Next.js garde les pages déjà visitées dans le document, masquées : chaque formulaire a ses propres identifiants.
   const uid = useId();
@@ -384,44 +378,9 @@ export function FormulaireArticle({
         </fieldset>
       </Carte>
 
-      <div className="sticky bottom-0 z-10 -mx-4 border-t border-filet bg-ivoire/95 px-4 py-3 backdrop-blur-md md:-mx-8 md:px-8">
-        <div className="mx-auto flex max-w-3xl flex-wrap items-center justify-end gap-x-3 gap-y-2">
-          {etat?.message && !enCours && (
-            <p role="alert" className="w-full text-sm text-rubis sm:mr-auto sm:w-auto">
-              {etat.message}
-              {etat.conflit && (
-                <>
-                  {" "}
-                  <button
-                    type="button"
-                    onClick={() => window.location.reload()}
-                    className="font-medium underline underline-offset-4"
-                  >
-                    Recharger
-                  </button>
-                </>
-              )}
-            </p>
-          )}
-          {etat?.ok && !enCours && (
-            <p role="status" className="w-full text-sm text-[#187a42] sm:mr-auto sm:w-auto">
-              {etat.ok}
-            </p>
-          )}
-          <Link href="/admin/articles" className="bouton bouton-contour flex-1 px-4 sm:flex-none sm:px-7">
-            Retour
-          </Link>
-          <button type="submit" disabled={enCours || envoiPhotos} className="bouton bouton-nuit flex-[2] px-4 sm:flex-none sm:px-7">
-            {enCours
-              ? "Enregistrement…"
-              : envoiPhotos
-                ? "Envoi des photos…"
-                : nouveau
-                  ? "Ajouter l’article"
-                  : "Enregistrer"}
-          </button>
-        </div>
-      </div>
+      <BarreEnregistrement etat={etat} enCours={enCours} retour="/admin/articles" bloque={envoiPhotos}>
+        {enCours ? "Enregistrement…" : envoiPhotos ? "Envoi des photos…" : nouveau ? "Ajouter l’article" : "Enregistrer"}
+      </BarreEnregistrement>
     </form>
   );
 }
