@@ -3,8 +3,9 @@ import Image from "next/image";
 import Link from "next/link";
 import { Newspaper, Plus } from "lucide-react";
 import { BasculeEnLigne } from "@/components/admin/BasculeEnLigne";
+import { BoutonSupprimer } from "@/components/admin/BoutonSupprimer";
 import { Avis, EnTete } from "@/components/admin/ui";
-import { basculerActualite } from "@/lib/actions/actualites";
+import { basculerActualite, supprimerActualite } from "@/lib/actions/actualites";
 import { getActualites } from "@/lib/data/admin";
 import { formatDate } from "@/lib/dates";
 
@@ -80,6 +81,13 @@ export default async function ActualitesPage({ searchParams }: PageProps<"/admin
                 enLigne={a.published}
                 action={basculerActualite.bind(null, a.id)}
                 libelles={["En ligne", "Brouillon"]}
+              />
+              <BoutonSupprimer
+                compact
+                action={supprimerActualite.bind(null, a.id)}
+                libelle={`Supprimer « ${a.title} »`}
+                titre="Supprimer cette actualité ?"
+                message={`« ${a.title} »${a.image ? " et sa photo seront effacées" : " sera effacée"} du site et de l’espace admin. C’est définitif : pour la retirer seulement du site, passez-la plutôt en brouillon.`}
               />
             </li>
           ))}
