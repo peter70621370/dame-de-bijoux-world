@@ -7,13 +7,17 @@ export function whatsappUrl(message: string) {
 
 /** Message du bouton WhatsApp des cartes produit : article, prix et lien de la fiche. */
 export function productEnquiryUrl(product: Product) {
+  // Tournures neutres : le choix peut être féminin (« finitions ») et le nom de l'article aussi (« Chaîne… »).
   const question = product.option
-    ? `Quels ${product.option.plural} sont disponibles ?`
-    : "Est-il disponible ?";
+    ? `Pouvez-vous m’indiquer les ${product.option.plural} disponibles ?`
+    : "L’article est-il disponible ?";
+  const prix = product.regularPrice
+    ? `${formatPrice(product.price)} en promotion au lieu de ${formatPrice(product.regularPrice)}`
+    : formatPrice(product.price);
   return whatsappUrl(
     [
       `Bonjour ${site.name} !`,
-      `Je suis intéressé(e) par « ${product.name} » (${formatPrice(product.price)}). ${question}`,
+      `Je suis intéressé(e) par « ${product.name} » (${prix}). ${question}`,
       `${site.url}/selection/${product.slug}`,
     ].join("\n"),
   );
@@ -30,6 +34,8 @@ export type OrderLine = {
   optionName?: string;
   quantity: number;
   price: number;
+  /** Présent quand `price` est un prix promotionnel : la boutique le voit dans le message. */
+  regularPrice?: number;
 };
 
 export type OrderCustomer = {
@@ -46,7 +52,8 @@ export function orderMessage(lines: OrderLine[], customer?: OrderCustomer) {
   const linked = new Set<string>();
   const rows = lines.flatMap((l) => {
     const variant = l.variant ? ` (${l.optionName ?? "Choix"} : ${l.variant})` : "";
-    const row = `• ${l.quantity} × ${l.name}${variant} — ${formatPrice(l.price * l.quantity)}`;
+    const promo = l.regularPrice ? " (prix promo)" : "";
+    const row = `• ${l.quantity} × ${l.name}${variant} — ${formatPrice(l.price * l.quantity)}${promo}`;
     if (linked.has(l.slug)) return [row];
     linked.add(l.slug);
     return [row, `  ${site.url}/selection/${l.slug}`];

@@ -57,6 +57,7 @@ export function CartDrawer() {
         optionName: l.product.option?.name,
         quantity: l.quantity,
         price: l.product.price,
+        regularPrice: l.product.regularPrice,
       })),
       customer,
     );

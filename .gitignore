@@ -43,3 +43,6 @@ next-env.d.ts
 
 # client Prisma (régénéré par `prisma generate` à l'installation)
 /src/generated/prisma
+
+# photos envoyées depuis le back-office en local (voir src/lib/stockage.ts)
+/televersements

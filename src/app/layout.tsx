@@ -53,7 +53,8 @@ export const viewport: Viewport = {
 // Le site public (groupe (site)) et le back-office (/admin) ont chacun leur habillage.
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="fr" className={`${cormorant.variable} ${jost.variable} antialiased`}>
+    // data-scroll-behavior : défilement doux pour les ancres, mais pas pendant les changements de page.
+    <html lang="fr" data-scroll-behavior="smooth" className={`${cormorant.variable} ${jost.variable} antialiased`}>
       <body className="flex min-h-dvh flex-col">{children}</body>
     </html>
   );

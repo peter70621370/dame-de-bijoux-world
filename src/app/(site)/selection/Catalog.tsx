@@ -32,7 +32,7 @@ function terms(query: string) {
     .map((w) => (w.length > 3 ? w.replace(/[sx]$/, "") : w));
 }
 
-/** Texte cherchable d'une fiche : nom, descriptions, catégorie et choix proposés. */
+/** Texte cherchable d'une fiche : nom, descriptions, catégorie, choix proposés et promotion en cours. */
 function searchableText(p: Product) {
   const parts = [
     p.name,
@@ -42,6 +42,7 @@ function searchableText(p: Product) {
     p.categoryLabel,
     p.categoryTag,
     ...(p.option?.values.map((v) => v.label) ?? []),
+    p.regularPrice ? "promo promotion soldes" : "",
   ];
   return normalize(parts.join(" "));
 }

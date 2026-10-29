@@ -5,7 +5,7 @@ import { useState } from "react";
 import { useCart } from "@/components/cart/CartProvider";
 import { Quantity } from "@/components/cart/CartDrawer";
 import { IconBag, IconChat, IconCheck, IconPlus, IconStore, IconTag, IconWhatsApp } from "@/components/icons";
-import { formatPrice, type Product } from "@/lib/products";
+import { discountPercent, formatPrice, formatPromoEnd, type Product } from "@/lib/products";
 import { site } from "@/lib/site";
 import { orderMessage, whatsappUrl } from "@/lib/whatsapp";
 
@@ -36,6 +36,7 @@ export function ProductView({ product }: { product: Product }) {
         optionName: product.option?.name,
         quantity,
         price: product.price,
+        regularPrice: product.regularPrice,
       },
     ]),
   );
@@ -94,7 +95,23 @@ export function ProductView({ product }: { product: Product }) {
         <div className="lg:sticky lg:top-28">
           <p className="eyebrow text-or-fonce">{product.categoryLabel}</p>
           <h1 className="titre mt-4 text-[clamp(2.6rem,5vw,4rem)]">{product.name}</h1>
-          <p className="prix mt-4 font-serif text-3xl">{formatPrice(product.price)}</p>
+          <p className="mt-4 flex flex-wrap items-baseline gap-x-3">
+            <span className={`prix font-serif text-3xl ${product.regularPrice ? "text-rubis" : ""}`}>
+              {formatPrice(product.price)}
+            </span>
+            {product.regularPrice && (
+              <span className="text-lg text-douce">
+                <span className="sr-only">au lieu de </span>
+                <s className="prix">{formatPrice(product.regularPrice)}</s>
+              </span>
+            )}
+          </p>
+          {product.regularPrice && (
+            <p className="mt-2 inline-flex rounded-full bg-or/15 px-3 py-1 text-xs font-medium text-or-fonce">
+              Promo −{discountPercent(product.price, product.regularPrice)} %
+              {product.promoEndsAt && ` · jusqu’au ${formatPromoEnd(product.promoEndsAt)}`}
+            </p>
+          )}
           <p className="mt-1 text-sm text-douce">Prix à l’unité · tarifs de gros sur demande</p>
 
           <p className="mt-8 leading-relaxed text-douce">{product.description}</p>

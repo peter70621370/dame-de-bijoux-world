@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useRef, type ReactNode } from "react";
+import { Suspense, useRef, type ReactNode } from "react";
 import {
   BadgePercent,
   CircleQuestionMark,
@@ -29,9 +29,9 @@ const SECTIONS: { titre?: string; liens: Lien[] }[] = [
   {
     titre: "Catalogue",
     liens: [
-      { href: "/admin/articles", label: "Articles", icon: Gem },
-      { href: "/admin/categories", label: "Catégories", icon: Tags },
-      { href: "/admin/promotions", label: "Promotions", icon: BadgePercent },
+      { href: "/admin/articles", label: "Articles", icon: Gem, pret: true },
+      { href: "/admin/categories", label: "Catégories", icon: Tags, pret: true },
+      { href: "/admin/promotions", label: "Promotions", icon: BadgePercent, pret: true },
     ],
   },
   {
@@ -61,6 +61,18 @@ export function AdminShell({ compte, children }: { compte: ReactNode; children: 
 
   return (
     <div className="flex min-h-dvh flex-1 flex-col bg-sable/50 lg:pl-68">
+      {/* Menu collé en haut, barre « Enregistrer » collée en bas des formulaires : les débuts de page et les champs
+          atteints au clavier ne passent pas dessous. Règle coupée quand Next.js masque le back-office (vers le site). */}
+      <style
+        ref={(style) => {
+          if (style) style.media = "";
+          return () => {
+            if (style) style.media = "not all";
+          };
+        }}
+      >
+        {"html { scroll-padding-top: 5rem; scroll-padding-bottom: 6rem; }"}
+      </style>
       <a
         href="#contenu-admin"
         className="sr-only z-[60] bg-nuit px-4 py-3 text-ivoire focus:not-sr-only focus:fixed focus:top-2 focus:left-2"
@@ -69,7 +81,7 @@ export function AdminShell({ compte, children }: { compte: ReactNode; children: 
       </a>
 
       <aside className="fixed inset-y-0 left-0 hidden w-68 bg-nuit text-ivoire lg:block">
-        <Navigation />
+        <Rubriques />
       </aside>
 
       <dialog
@@ -86,7 +98,7 @@ export function AdminShell({ compte, children }: { compte: ReactNode; children: 
         >
           <X size={20} aria-hidden />
         </button>
-        <Navigation onNavigate={() => tiroir.current?.close()} />
+        <Rubriques onNavigate={() => tiroir.current?.close()} />
       </dialog>
 
       <header className="sticky top-0 z-30 border-b border-filet bg-ivoire/85 backdrop-blur-md">
@@ -125,9 +137,23 @@ export function AdminShell({ compte, children }: { compte: ReactNode; children: 
   );
 }
 
-function Navigation({ onNavigate }: { onNavigate?: () => void }) {
-  const pathname = usePathname();
+/**
+ * Menu, rubrique en cours surlignée. Sur les pages à adresse variable (une fiche article…), l'adresse n'est connue
+ * qu'à la visite : le menu s'affiche d'abord sans surlignage, qui arrive aussitôt après.
+ */
+function Rubriques({ onNavigate }: { onNavigate?: () => void }) {
+  return (
+    <Suspense fallback={<Navigation pathname={null} onNavigate={onNavigate} />}>
+      <NavigationActive onNavigate={onNavigate} />
+    </Suspense>
+  );
+}
 
+function NavigationActive({ onNavigate }: { onNavigate?: () => void }) {
+  return <Navigation pathname={usePathname()} onNavigate={onNavigate} />;
+}
+
+function Navigation({ pathname, onNavigate }: { pathname: string | null; onNavigate?: () => void }) {
   return (
     <nav aria-label="Back-office" className="flex h-full flex-col overflow-y-auto px-4 pt-6 pb-5">
       <Link href="/admin" onClick={onNavigate} className="flex items-center gap-3 px-2">
@@ -146,7 +172,7 @@ function Navigation({ onNavigate }: { onNavigate?: () => void }) {
             )}
             <ul className="space-y-0.5">
               {section.liens.map(({ href, label, icon: Icon, pret }) => {
-                const actif = href === "/admin" ? pathname === href : pathname.startsWith(href);
+                const actif = pathname !== null && (href === "/admin" ? pathname === href : pathname.startsWith(href));
                 if (!pret) {
                   return (
                     <li key={href}>

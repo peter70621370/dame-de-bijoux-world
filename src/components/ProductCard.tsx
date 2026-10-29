@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import { formatPrice, type Product } from "@/lib/products";
+import { discountPercent, formatPrice, type Product } from "@/lib/products";
 import { productEnquiryUrl } from "@/lib/whatsapp";
 import { ShareButton } from "./ShareButton";
 import { IconSparkle, IconWhatsApp } from "./icons";
@@ -36,9 +36,18 @@ export function ProductCard({ product, priority = false }: { product: Product; p
         <span className="pointer-events-none absolute top-3 left-3 rounded-full bg-white/95 px-3 py-1 text-xs font-medium text-encre shadow-sm">
           {product.categoryTag}
         </span>
-        {product.isNew && (
-          <span className="pointer-events-none absolute top-3 right-3 rounded-full bg-rubis px-3 py-1 text-xs font-semibold text-white shadow-sm">
-            Nouveauté
+        {(product.isNew || product.regularPrice) && (
+          <span className="pointer-events-none absolute top-3 right-3 flex flex-col items-end gap-1.5">
+            {product.regularPrice && (
+              <span className="rounded-full bg-or px-3 py-1 text-xs font-semibold text-nuit shadow-sm">
+                Promo −{discountPercent(product.price, product.regularPrice)} %
+              </span>
+            )}
+            {product.isNew && (
+              <span className="rounded-full bg-rubis px-3 py-1 text-xs font-semibold text-white shadow-sm">
+                Nouveauté
+              </span>
+            )}
           </span>
         )}
         <ShareButton title={product.name} path={href} className="absolute right-3 bottom-3" />
@@ -57,9 +66,18 @@ export function ProductCard({ product, priority = false }: { product: Product; p
             : "Modèle unique"}
         </p>
 
-        <p className="mt-auto pt-5">
-          <span className="prix text-xl font-semibold text-or-fonce">{formatPrice(product.price)}</span>
-          <span className="text-sm text-douce"> / pièce</span>
+        <p className="mt-auto flex flex-wrap items-baseline gap-x-2 pt-5">
+          <span className={`prix text-xl font-semibold ${product.regularPrice ? "text-rubis" : "text-or-fonce"}`}>
+            {formatPrice(product.price)}
+          </span>
+          {product.regularPrice ? (
+            <span className="text-sm text-douce">
+              <span className="sr-only">au lieu de </span>
+              <s className="prix">{formatPrice(product.regularPrice)}</s>
+            </span>
+          ) : (
+            <span className="text-sm text-douce">/ pièce</span>
+          )}
         </p>
         <div className="mt-4 flex gap-2.5">
           <Link

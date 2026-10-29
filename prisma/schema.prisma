@@ -52,6 +52,10 @@ model Product {
   categoryId   String
   /// Prix de vente au détail, en FCFA.
   price        Int
+  /// Prix promotionnel en FCFA : affiché à la place du prix, l'ancien prix barré, tant que la promotion court.
+  promoPrice   Int?
+  /// Fin de la promotion (dernière seconde du jour choisi, heure de Lomé) ; vide : jusqu'à ce qu'on la retire.
+  promoEndsAt  DateTime?
   isNew        Boolean          @default(false)
   /// Décoché : la fiche reste dans le back-office mais disparaît du site.
   published    Boolean          @default(true)

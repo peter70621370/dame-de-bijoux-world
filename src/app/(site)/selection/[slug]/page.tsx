@@ -110,6 +110,7 @@ async function ProductContent({ params }: { params: PageProps<"/selection/[slug]
             url: `${site.url}/selection/${product.slug}`,
             priceCurrency: "XOF",
             price: product.price,
+            ...(product.promoEndsAt && { priceValidUntil: product.promoEndsAt.slice(0, 10) }),
             availability: "https://schema.org/InStock",
             seller: { "@type": "Organization", name: site.name },
           },

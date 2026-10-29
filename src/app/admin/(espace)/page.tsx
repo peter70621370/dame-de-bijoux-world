@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import Image from "next/image";
-import { ExternalLink, Gem, Images, Sparkles, Tags, type LucideIcon } from "lucide-react";
+import Link from "next/link";
+import { BadgePercent, ExternalLink, Gem, Sparkles, Tags, type LucideIcon } from "lucide-react";
+import { Pastille } from "@/components/admin/ui";
 import { verifySession } from "@/lib/dal";
 import { getTableauDeBord } from "@/lib/data/admin";
 import { formatPrice } from "@/lib/products";
@@ -35,7 +37,7 @@ export default async function TableauDeBordPage() {
         />
         <Stat icon={Sparkles} label="Nouveautés" value={d.nouveautes} hint="Badge « Nouveauté » affiché" />
         <Stat icon={Tags} label="Catégories" value={d.categories.length} hint={`Dont ${surDemande} sur demande`} />
-        <Stat icon={Images} label="Photos" value={d.photos} hint="Sur les fiches articles" />
+        <Stat icon={BadgePercent} label="Promotions" value={d.promotions} hint="En cours sur le site" />
       </ul>
 
       <div className="grid grid-cols-1 gap-5 lg:grid-cols-3">
@@ -47,21 +49,25 @@ export default async function TableauDeBordPage() {
             <ul className="mt-4 divide-y divide-filet">
               {d.recents.map((p) => (
                 <li key={p.id} className="flex items-center gap-4 py-3.5">
-                  <span className="relative size-14 shrink-0 overflow-hidden rounded-xl bg-sable">
-                    {p.images[0] && (
-                      <Image src={p.images[0].url} alt="" fill sizes="56px" className="object-cover" />
-                    )}
-                  </span>
-                  <div className="min-w-0 flex-1">
-                    <p className="truncate font-medium">{p.name}</p>
-                    <p className="mt-0.5 truncate text-sm text-douce">
-                      {p.category.label} · <span className="prix">{formatPrice(p.price)}</span>
-                    </p>
-                    <p className="mt-1.5 flex flex-wrap gap-1.5">
-                      <Pastille ton={p.published ? "vert" : "gris"}>{p.published ? "En ligne" : "Masqué"}</Pastille>
-                      {p.isNew && <Pastille ton="rubis">Nouveauté</Pastille>}
-                    </p>
-                  </div>
+                  <Link href={`/admin/articles/${p.id}`} className="flex min-w-0 flex-1 items-center gap-4 rounded-xl">
+                    <span className="relative size-14 shrink-0 overflow-hidden rounded-xl bg-sable">
+                      {p.images[0] && (
+                        <Image src={p.images[0].url} alt="" fill sizes="56px" className="object-cover" />
+                      )}
+                    </span>
+                    <span className="min-w-0 flex-1">
+                      <span className="block truncate font-medium">{p.name}</span>
+                      <span className="mt-0.5 block truncate text-sm text-douce">
+                        {p.category.label} ·{" "}
+                        <span className="prix">{formatPrice(p.enPromo && p.promoPrice ? p.promoPrice : p.price)}</span>
+                      </span>
+                      <span className="mt-1.5 flex flex-wrap gap-1.5">
+                        <Pastille ton={p.published ? "vert" : "gris"}>{p.published ? "En ligne" : "Masqué"}</Pastille>
+                        {p.enPromo && <Pastille ton="or">Promo</Pastille>}
+                        {p.isNew && <Pastille ton="rubis">Nouveauté</Pastille>}
+                      </span>
+                    </span>
+                  </Link>
                   <div className="flex shrink-0 flex-col items-end gap-1 text-right">
                     <span className="text-xs text-douce">{modifie.format(p.updatedAt)}</span>
                     {p.published && (
@@ -118,11 +124,3 @@ function Stat({ icon: Icon, label, value, hint }: { icon: LucideIcon; label: str
   );
 }
 
-function Pastille({ ton, children }: { ton: "vert" | "gris" | "rubis"; children: string }) {
-  const couleurs = {
-    vert: "bg-[#1f8f4e]/10 text-[#187a42]",
-    gris: "bg-encre/8 text-douce",
-    rubis: "bg-rubis/10 text-rubis",
-  };
-  return <span className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${couleurs[ton]}`}>{children}</span>;
-}

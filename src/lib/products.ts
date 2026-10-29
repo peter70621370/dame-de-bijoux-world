@@ -33,7 +33,12 @@ export type Product = {
   category: string;
   categoryLabel: string;
   categoryTag: string;
+  /** Prix payé par le client, promotion comprise. */
   price: number;
+  /** Prix habituel, affiché barré pendant une promotion. */
+  regularPrice?: number;
+  /** Fin de la promotion (date ISO) ; absente si elle court jusqu'à ce qu'on la retire. */
+  promoEndsAt?: string;
   isNew?: boolean;
   short: string;
   description: string;
@@ -43,10 +48,30 @@ export type Product = {
 };
 
 /** Ce dont le panier a besoin pour afficher une ligne : le reste de la fiche reste sur le serveur. */
-export type CartProduct = Pick<Product, "slug" | "name" | "price" | "images" | "option">;
+export type CartProduct = Pick<Product, "slug" | "name" | "price" | "regularPrice" | "images" | "option">;
 
-export function toCartProduct({ slug, name, price, images, option }: Product): CartProduct {
-  return { slug, name, price, images, option };
+export function toCartProduct({ slug, name, price, regularPrice, images, option }: Product): CartProduct {
+  return { slug, name, price, regularPrice, images, option };
+}
+
+/** Une promotion s'applique quand son prix est sous le prix habituel et que sa date de fin n'est pas passée. */
+export function isPromoActive(
+  p: { price: number; promoPrice: number | null; promoEndsAt: Date | null },
+  now = new Date(),
+) {
+  return p.promoPrice !== null && p.promoPrice < p.price && (p.promoEndsAt === null || p.promoEndsAt > now);
+}
+
+/** Remise arrondie en pourcentage : 1 500 → 1 200 FCFA donne 20. */
+export function discountPercent(price: number, regularPrice: number) {
+  return Math.round((1 - price / regularPrice) * 100);
+}
+
+const promoEnd = new Intl.DateTimeFormat("fr-FR", { day: "numeric", month: "long", timeZone: "Africa/Lome" });
+
+/** Dernier jour d'une promotion, à l'heure de Lomé : « 15 novembre ». */
+export function formatPromoEnd(iso: string) {
+  return promoEnd.format(new Date(iso));
 }
 
 export function relatedProducts(product: Product, products: Product[], limit = 3) {
