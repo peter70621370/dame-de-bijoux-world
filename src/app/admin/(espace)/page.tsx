@@ -3,7 +3,6 @@ import Image from "next/image";
 import Link from "next/link";
 import { BadgePercent, ExternalLink, Gem, Sparkles, Tags, type LucideIcon } from "lucide-react";
 import { Pastille } from "@/components/admin/ui";
-import { verifySession } from "@/lib/dal";
 import { getTableauDeBord } from "@/lib/data/admin";
 import { formatPrice } from "@/lib/products";
 
@@ -11,22 +10,16 @@ export const metadata: Metadata = {
   title: "Tableau de bord",
 };
 
-const jour = new Intl.DateTimeFormat("fr-FR", { weekday: "long", day: "numeric", month: "long", timeZone: "Africa/Lome" });
 const modifie = new Intl.DateTimeFormat("fr-FR", { day: "numeric", month: "short", timeZone: "Africa/Lome" });
 
 export default async function TableauDeBordPage() {
-  const admin = await verifySession();
   const d = await getTableauDeBord();
   const surDemande = d.categories.filter((c) => c.onRequest).length;
   const maxArticles = Math.max(1, ...d.categories.map((c) => c.articles));
 
   return (
     <div className="space-y-8 md:space-y-10">
-      <header>
-        <p className="eyebrow text-or-fonce">{jour.format(new Date())}</p>
-        <h1 className="titre mt-3 text-[2.6rem] md:text-5xl">Bonjour, {admin.name.split(" ")[0]}</h1>
-        <p className="mt-2 text-douce">Voici l’état de votre boutique en ligne.</p>
-      </header>
+      <h1 className="sr-only">Tableau de bord</h1>
 
       <ul className="grid grid-cols-2 gap-3 md:gap-5 lg:grid-cols-4">
         <Stat
@@ -113,11 +106,13 @@ export default async function TableauDeBordPage() {
 
 function Stat({ icon: Icon, label, value, hint }: { icon: LucideIcon; label: string; value: number; hint: string }) {
   return (
-    <li className="rounded-2xl border border-filet bg-white p-4 md:p-6">
-      <span className="grid size-10 place-items-center rounded-xl bg-sable text-or-fonce">
-        <Icon size={19} aria-hidden />
-      </span>
-      <p className="prix mt-4 font-serif text-4xl leading-none md:text-5xl">{value}</p>
+    <li className="rounded-2xl border border-filet bg-white p-4">
+      <div className="flex items-center justify-between gap-3">
+        <p className="prix font-serif text-3xl leading-none">{value}</p>
+        <span className="grid size-8 place-items-center rounded-lg bg-sable text-or-fonce">
+          <Icon size={16} aria-hidden />
+        </span>
+      </div>
       <p className="mt-2 text-sm font-medium">{label}</p>
       <p className="mt-0.5 text-xs leading-snug text-douce">{hint}</p>
     </li>

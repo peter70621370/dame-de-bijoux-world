@@ -21,7 +21,9 @@ import {
 } from "lucide-react";
 import { LogoEmbleme } from "@/components/LogoEmbleme";
 
-type Lien = { href: string; label: string; icon: LucideIcon; pret?: boolean };
+type Session = { nom: ReactNode; compte: ReactNode };
+
+type Lien ={ href: string; label: string; icon: LucideIcon; pret?: boolean };
 
 // Toutes les rubriques prévues ; celles qui ne sont pas encore construites restent visibles, marquées « Bientôt ».
 const SECTIONS: { titre?: string; liens: Lien[] }[] = [
@@ -54,9 +56,9 @@ const SECTIONS: { titre?: string; liens: Lien[] }[] = [
 
 /**
  * Habillage du back-office : menu latéral (tiroir sur téléphone) et barre du haut.
- * `compte` : bloc du compte connecté, rendu par le serveur.
+ * `nom` et `compte` : nom affiché sous le logo et bloc du compte connecté, rendus par le serveur.
  */
-export function AdminShell({ compte, children }: { compte: ReactNode; children: ReactNode }) {
+export function AdminShell({ nom, compte, children }: Session & { children: ReactNode }) {
   const tiroir = useRef<HTMLDialogElement>(null);
 
   return (
@@ -71,7 +73,8 @@ export function AdminShell({ compte, children }: { compte: ReactNode; children: 
           };
         }}
       >
-        {"html { scroll-padding-top: 5rem; scroll-padding-bottom: 6rem; }"}
+        {"html { scroll-padding-top: 5rem; scroll-padding-bottom: 6rem; }" +
+          "@media (min-width: 64rem) { html { scroll-padding-top: 1.5rem; } }"}
       </style>
       <a
         href="#contenu-admin"
@@ -81,7 +84,7 @@ export function AdminShell({ compte, children }: { compte: ReactNode; children: 
       </a>
 
       <aside className="fixed inset-y-0 left-0 hidden w-68 bg-nuit text-ivoire lg:block">
-        <Rubriques />
+        <Rubriques nom={nom} compte={compte} />
       </aside>
 
       <dialog
@@ -98,35 +101,24 @@ export function AdminShell({ compte, children }: { compte: ReactNode; children: 
         >
           <X size={20} aria-hidden />
         </button>
-        <Rubriques onNavigate={() => tiroir.current?.close()} />
+        <Rubriques nom={nom} compte={compte} onNavigate={() => tiroir.current?.close()} />
       </dialog>
 
-      <header className="sticky top-0 z-30 border-b border-filet bg-ivoire/85 backdrop-blur-md">
+      {/* Sur ordinateur, le menu reste affiché : la barre ne sert qu'au téléphone. */}
+      <header className="sticky top-0 z-30 border-b border-filet bg-ivoire/85 backdrop-blur-md lg:hidden">
         <div className="flex h-16 items-center gap-3 px-4 md:px-8">
           <button
             type="button"
             onClick={() => tiroir.current?.showModal()}
             aria-label="Ouvrir le menu"
-            className="-ml-1 grid size-10 place-items-center rounded-lg text-encre hover:bg-sable lg:hidden"
+            className="-ml-1 grid size-10 place-items-center rounded-lg text-encre hover:bg-sable"
           >
             <Menu size={22} aria-hidden />
           </button>
-          <Link href="/admin" className="flex items-center gap-2.5 lg:hidden">
+          <Link href="/admin" className="flex items-center gap-2.5">
             <LogoEmbleme className="h-7 w-auto text-or-fonce" />
             <span className="font-serif text-xl leading-none">Back-office</span>
           </Link>
-          <div className="ml-auto flex items-center gap-2 sm:gap-4">
-            <a
-              href="/"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex h-10 items-center gap-2 rounded-xl px-3 text-sm text-douce transition-colors hover:bg-sable hover:text-encre"
-            >
-              <ExternalLink size={16} aria-hidden />
-              <span className="sr-only sm:not-sr-only">Voir le site</span>
-            </a>
-            {compte}
-          </div>
         </div>
       </header>
 
@@ -141,34 +133,44 @@ export function AdminShell({ compte, children }: { compte: ReactNode; children: 
  * Menu, rubrique en cours surlignée. Sur les pages à adresse variable (une fiche article…), l'adresse n'est connue
  * qu'à la visite : le menu s'affiche d'abord sans surlignage, qui arrive aussitôt après.
  */
-function Rubriques({ onNavigate }: { onNavigate?: () => void }) {
+function Rubriques(props: Session & { onNavigate?: () => void }) {
   return (
-    <Suspense fallback={<Navigation pathname={null} onNavigate={onNavigate} />}>
-      <NavigationActive onNavigate={onNavigate} />
+    <Suspense fallback={<Navigation pathname={null} {...props} />}>
+      <NavigationActive {...props} />
     </Suspense>
   );
 }
 
-function NavigationActive({ onNavigate }: { onNavigate?: () => void }) {
-  return <Navigation pathname={usePathname()} onNavigate={onNavigate} />;
+function NavigationActive(props: Session & { onNavigate?: () => void }) {
+  return <Navigation pathname={usePathname()} {...props} />;
 }
 
-function Navigation({ pathname, onNavigate }: { pathname: string | null; onNavigate?: () => void }) {
+function Navigation({
+  pathname,
+  nom,
+  compte,
+  onNavigate,
+}: Session & {
+  pathname: string | null;
+  onNavigate?: () => void;
+}) {
   return (
-    <nav aria-label="Back-office" className="flex h-full flex-col overflow-y-auto px-4 pt-6 pb-5">
-      <Link href="/admin" onClick={onNavigate} className="flex items-center gap-3 px-2">
+    // Logo en haut et compte en bas restent en place ; seules les rubriques défilent sur un écran bas.
+    <nav aria-label="Back-office" className="flex h-full flex-col px-4 pt-6 pb-4">
+      <Link href="/admin" onClick={onNavigate} className="flex shrink-0 items-center gap-3 px-2">
         <LogoEmbleme className="h-10 w-auto text-or" />
-        <span className="leading-tight whitespace-nowrap">
+        <span className="min-w-0 leading-tight whitespace-nowrap">
           <span className="block font-serif text-lg font-semibold uppercase tracking-[0.08em]">Dame de Bijoux</span>
-          <span className="eyebrow mt-0.5 block text-[0.6rem] text-or-clair">Back-office</span>
+          <span className="eyebrow mt-0.5 block min-h-[1.2em] truncate text-[0.6rem] text-or-clair">{nom}</span>
         </span>
       </Link>
 
-      <div className="mt-8 space-y-6">
+      {/* Barre de défilement fine et sombre, assortie au menu (la barre claire du navigateur jurait). */}
+      <div className="-mx-4 mt-6 min-h-0 flex-1 space-y-5 overflow-y-auto px-4 pb-5 [scrollbar-color:rgb(255_255_255/0.18)_transparent] [scrollbar-width:thin]">
         {SECTIONS.map((section, i) => (
           <div key={section.titre ?? i}>
             {section.titre && (
-              <p className="eyebrow mb-2 px-3 text-[0.6rem] text-ivoire/40">{section.titre}</p>
+              <p className="eyebrow mb-1.5 px-3 text-[0.6rem] text-ivoire/40">{section.titre}</p>
             )}
             <ul className="space-y-0.5">
               {section.liens.map(({ href, label, icon: Icon, pret }) => {
@@ -178,7 +180,7 @@ function Navigation({ pathname, onNavigate }: { pathname: string | null; onNavig
                     <li key={href}>
                       <span
                         aria-disabled="true"
-                        className="flex h-11 items-center gap-3 rounded-xl px-3 text-sm text-ivoire/40"
+                        className="flex h-10 items-center gap-3 rounded-xl px-3 text-sm text-ivoire/40"
                       >
                         <Icon size={18} aria-hidden className="shrink-0" />
                         <span className="truncate">{label}</span>
@@ -193,7 +195,7 @@ function Navigation({ pathname, onNavigate }: { pathname: string | null; onNavig
                       href={href}
                       onClick={onNavigate}
                       aria-current={actif ? "page" : undefined}
-                      className={`relative flex h-11 items-center gap-3 rounded-xl px-3 text-sm transition-colors ${
+                      className={`relative flex h-10 items-center gap-3 rounded-xl px-3 text-sm transition-colors ${
                         actif ? "bg-white/10 text-ivoire" : "text-ivoire/75 hover:bg-white/5 hover:text-ivoire"
                       }`}
                     >
@@ -209,14 +211,17 @@ function Navigation({ pathname, onNavigate }: { pathname: string | null; onNavig
         ))}
       </div>
 
-      <a
-        href="/"
-        target="_blank"
-        rel="noopener noreferrer"
-        className="mt-auto flex items-center gap-2 rounded-xl px-3 pt-8 text-xs uppercase tracking-[0.18em] text-ivoire/50 transition-colors hover:text-or-clair"
-      >
-        <ExternalLink size={14} aria-hidden /> Ouvrir le site
-      </a>
+      <div className="shrink-0 space-y-2 border-t border-white/10 pt-2">
+        <a
+          href="/"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex h-10 items-center gap-3 rounded-xl px-3 text-sm text-ivoire/75 transition-colors hover:bg-white/5 hover:text-ivoire"
+        >
+          <ExternalLink size={18} aria-hidden className="shrink-0" /> Voir le site
+        </a>
+        {compte}
+      </div>
     </nav>
   );
 }
