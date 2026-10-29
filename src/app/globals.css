@@ -1,0 +1,175 @@
+@import "tailwindcss";
+
+/*
+  Charte Dame de Bijoux World — tirée du logo :
+  nuit (noir prune), or (monogramme), rubis (cœur serti), ivoire (fond éditorial).
+  Contrastes vérifiés AA : encre/douce/or-fonce/rubis sur ivoire ≥ 4.5:1, or-clair sur nuit ≥ 7:1.
+*/
+@theme {
+  --color-nuit: #150b11;
+  --color-nuit-2: #22131b;
+  --color-ivoire: #fbf7f1;
+  --color-sable: #f3ebdf;
+  --color-or: #c9a25e;
+  --color-or-clair: #e6cb94;
+  --color-or-fonce: #7e5f26;
+  --color-rubis: #b3345e;
+  --color-encre: #241a20;
+  --color-douce: #6b5f66;
+  --color-filet: rgb(36 26 32 / 0.12);
+
+  --font-serif: var(--font-cormorant), "Times New Roman", serif;
+  --font-sans: var(--font-jost), system-ui, sans-serif;
+  /* Menus : police système, sans téléchargement (Android se rabat sur sa police à empattements). */
+  --font-times: "Times New Roman", Times, serif;
+
+  --ease-luxe: cubic-bezier(0.22, 1, 0.36, 1);
+
+  --animate-monte: monte 0.9s var(--ease-luxe) both;
+  --animate-fondu: fondu 0.6s ease-out both;
+  /* Intro du logo : se retire d'elle-même si le JavaScript ne s'exécute pas. */
+  --animate-intro-secours: intro-secours 0.6s ease 8s forwards;
+
+  @keyframes intro-secours {
+    to { opacity: 0; visibility: hidden; }
+  }
+  @keyframes monte {
+    from { opacity: 0; transform: translateY(18px); }
+    to { opacity: 1; transform: none; }
+  }
+  @keyframes fondu {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+}
+
+@layer base {
+  html {
+    -webkit-tap-highlight-color: transparent;
+    scroll-behavior: smooth;
+  }
+  /* Pendant l'intro : pas de défilement, et la place de la barre est gardée pour éviter un saut à la sortie. */
+  html.intro-en-cours {
+    overflow: hidden;
+    scrollbar-gutter: stable;
+  }
+  body {
+    background: var(--color-ivoire);
+    color: var(--color-encre);
+    font-family: var(--font-sans);
+    font-feature-settings: "kern", "liga";
+    font-variant-numeric: lining-nums;
+    text-rendering: optimizeLegibility;
+  }
+  ::selection {
+    background: var(--color-or-clair);
+    color: var(--color-nuit);
+  }
+  :focus-visible {
+    outline: 2px solid var(--color-or);
+    outline-offset: 3px;
+  }
+  summary::-webkit-details-marker {
+    display: none;
+  }
+}
+
+@layer components {
+  .conteneur {
+    @apply mx-auto w-full max-w-[1320px] px-5 md:px-10;
+  }
+
+  .eyebrow {
+    @apply text-[0.7rem] font-medium uppercase tracking-[0.24em];
+  }
+
+  .titre {
+    @apply font-serif font-normal leading-[1.02] tracking-[-0.01em];
+  }
+
+  .bouton {
+    @apply inline-flex min-h-12 items-center justify-center gap-2.5 rounded-xl border px-7 text-center sm:whitespace-nowrap text-[0.72rem] font-medium uppercase tracking-[0.2em] transition-colors duration-300 ease-out disabled:cursor-not-allowed disabled:opacity-50;
+  }
+  .bouton-or {
+    @apply border-or bg-or text-nuit hover:border-or-clair hover:bg-or-clair;
+  }
+  .bouton-nuit {
+    @apply border-nuit bg-nuit text-ivoire hover:border-nuit-2 hover:bg-nuit-2;
+  }
+  .bouton-contour {
+    @apply border-current bg-transparent hover:bg-encre hover:text-ivoire;
+  }
+  .bouton-contour-clair {
+    @apply border-ivoire/40 bg-transparent text-ivoire hover:border-ivoire hover:bg-ivoire hover:text-nuit;
+  }
+  .bouton-whatsapp {
+    @apply border-[#1f8f4e] bg-[#1f8f4e] text-white hover:border-[#187a42] hover:bg-[#187a42];
+  }
+
+  .lien-souligne {
+    @apply relative inline-flex items-center gap-2 pb-1 text-[0.72rem] font-medium uppercase tracking-[0.2em];
+  }
+  .lien-souligne::after {
+    content: "";
+    @apply absolute inset-x-0 bottom-0 h-px origin-left bg-current transition-transform duration-500 ease-out;
+  }
+  /* Zone tactile élargie sans changer le rendu du lien. */
+  .lien-souligne::before {
+    content: "";
+    @apply absolute -inset-x-1 -inset-y-3;
+  }
+  .lien-souligne:hover::after {
+    transform: scaleX(0.35);
+  }
+
+  .prix {
+    @apply lining-nums tabular-nums;
+  }
+}
+
+/* Apparition au défilement (voir components/Reveal.tsx). */
+.reveal {
+  opacity: 0;
+  transform: translateY(24px);
+  transition:
+    opacity 0.9s var(--ease-luxe),
+    transform 0.9s var(--ease-luxe);
+  transition-delay: var(--delai, 0ms);
+}
+.reveal.est-visible {
+  opacity: 1;
+  transform: none;
+}
+
+/* Halo doré du héros, lent et discret. */
+.halo {
+  background:
+    radial-gradient(55% 60% at 75% 30%, rgb(201 162 94 / 0.22), transparent 62%),
+    radial-gradient(45% 55% at 10% 95%, rgb(179 52 94 / 0.18), transparent 60%);
+}
+
+.grain::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.06;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+  .reveal {
+    opacity: 1;
+    transform: none;
+  }
+}
