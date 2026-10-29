@@ -76,19 +76,24 @@ export default async function ActualitesPage({ searchParams }: PageProps<"/admin
                   </span>
                 </span>
               </Link>
-              <BasculeEnLigne
-                etiquette={`« ${a.title} » en ligne`}
-                enLigne={a.published}
-                action={basculerActualite.bind(null, a.id)}
-                libelles={["En ligne", "Brouillon"]}
-              />
-              <BoutonSupprimer
-                compact
-                action={supprimerActualite.bind(null, a.id)}
-                libelle={`Supprimer « ${a.title} »`}
-                titre="Supprimer cette actualité ?"
-                message={`« ${a.title} »${a.image ? " et sa photo seront effacées" : " sera effacée"} du site et de l’espace admin. C’est définitif : pour la retirer seulement du site, passez-la plutôt en brouillon.`}
-              />
+              {/* Corbeille centrée sur l'interrupteur, pas sur l'ensemble interrupteur + libellé. */}
+              <div className="flex shrink-0 items-start gap-1 md:gap-2">
+                <BasculeEnLigne
+                  etiquette={`« ${a.title} » en ligne`}
+                  enLigne={a.published}
+                  action={basculerActualite.bind(null, a.id)}
+                  libelles={["En ligne", "Brouillon"]}
+                />
+                <div className="-mt-1.5">
+                  <BoutonSupprimer
+                    compact
+                    action={supprimerActualite.bind(null, a.id)}
+                    libelle={`Supprimer « ${a.title} »`}
+                    titre="Supprimer cette actualité ?"
+                    message={`« ${a.title} »${a.image ? " et sa photo seront effacées" : " sera effacée"} du site et de l’espace admin. C’est définitif : pour la retirer seulement du site, passez-la plutôt en brouillon.`}
+                  />
+                </div>
+              </div>
             </li>
           ))}
         </ul>
