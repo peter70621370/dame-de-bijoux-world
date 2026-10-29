@@ -29,7 +29,14 @@ export function ProductView({ product }: { product: Product }) {
 
   const directOrder = whatsappUrl(
     orderMessage([
-      { name: product.name, variant, optionName: product.option?.name, quantity, price: product.price },
+      {
+        slug: product.slug,
+        name: product.name,
+        variant,
+        optionName: product.option?.name,
+        quantity,
+        price: product.price,
+      },
     ]),
   );
 

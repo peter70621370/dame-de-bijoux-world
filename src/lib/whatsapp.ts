@@ -24,6 +24,7 @@ export const greetingUrl = whatsappUrl(
 );
 
 export type OrderLine = {
+  slug: string;
   name: string;
   variant?: string;
   optionName?: string;
@@ -40,9 +41,15 @@ export type OrderCustomer = {
 
 export function orderMessage(lines: OrderLine[], customer?: OrderCustomer) {
   const total = lines.reduce((sum, l) => sum + l.price * l.quantity, 0);
-  const rows = lines.map((l) => {
+  // Lien de la fiche sous chaque article (une fois par produit) : WhatsApp affiche
+  // l'aperçu du premier lien, avec la photo du produit.
+  const linked = new Set<string>();
+  const rows = lines.flatMap((l) => {
     const variant = l.variant ? ` (${l.optionName ?? "Choix"} : ${l.variant})` : "";
-    return `• ${l.quantity} × ${l.name}${variant} — ${formatPrice(l.price * l.quantity)}`;
+    const row = `• ${l.quantity} × ${l.name}${variant} — ${formatPrice(l.price * l.quantity)}`;
+    if (linked.has(l.slug)) return [row];
+    linked.add(l.slug);
+    return [row, `  ${site.url}/selection/${l.slug}`];
   });
 
   const parts = [

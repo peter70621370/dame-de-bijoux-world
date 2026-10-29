@@ -51,6 +51,7 @@ export function CartDrawer() {
     };
     const message = orderMessage(
       cart.lines.map((l) => ({
+        slug: l.product.slug,
         name: l.product.name,
         variant: l.variant,
         optionName: l.product.option?.name,
