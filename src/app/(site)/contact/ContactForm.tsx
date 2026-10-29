@@ -1,6 +1,7 @@
 "use client";
 
 import type { FormEvent } from "react";
+import { useBoutique } from "@/components/BoutiqueProvider";
 import { IconWhatsApp } from "@/components/icons";
 import { site } from "@/lib/site";
 import { whatsappUrl } from "@/lib/whatsapp";
@@ -8,11 +9,13 @@ import { whatsappUrl } from "@/lib/whatsapp";
 const sujets = ["Une commande", "Les tarifs de gros", "Un article sur demande", "Autre question"];
 
 export function ContactForm() {
+  const boutique = useBoutique();
+
   function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const d = new FormData(e.currentTarget);
     const message = `Bonjour ${site.name}, je suis ${d.get("nom")}.\nSujet : ${d.get("sujet")}\n\n${d.get("message")}`;
-    window.open(whatsappUrl(message), "_blank", "noopener,noreferrer");
+    window.open(whatsappUrl(boutique.whatsapp, message), "_blank", "noopener,noreferrer");
   }
 
   const field =

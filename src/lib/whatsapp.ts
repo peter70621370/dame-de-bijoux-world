@@ -1,12 +1,13 @@
 import { site } from "./site";
 import { formatPrice, type Product } from "./products";
 
-export function whatsappUrl(message: string) {
-  return `https://wa.me/${site.whatsappNumber}?text=${encodeURIComponent(message)}`;
+// `numero` : chiffres seuls avec l'indicatif, `Boutique.whatsapp` (getBoutique() ou useBoutique()).
+export function whatsappUrl(numero: string, message: string) {
+  return `https://wa.me/${numero}?text=${encodeURIComponent(message)}`;
 }
 
 /** Message du bouton WhatsApp des cartes produit : article, prix et lien de la fiche. */
-export function productEnquiryUrl(product: Product) {
+export function productEnquiryUrl(numero: string, product: Product) {
   // Tournures neutres : le choix peut être féminin (« finitions ») et le nom de l'article aussi (« Chaîne… »).
   const question = product.option
     ? `Pouvez-vous m’indiquer les ${product.option.plural} disponibles ?`
@@ -15,6 +16,7 @@ export function productEnquiryUrl(product: Product) {
     ? `${formatPrice(product.price)} en promotion au lieu de ${formatPrice(product.regularPrice)}`
     : formatPrice(product.price);
   return whatsappUrl(
+    numero,
     [
       `Bonjour ${site.name} !`,
       `Je suis intéressé(e) par « ${product.name} » (${prix}). ${question}`,
@@ -24,8 +26,9 @@ export function productEnquiryUrl(product: Product) {
 }
 
 /** Message du bouton WhatsApp d'une actualité : son titre et son lien. */
-export function newsEnquiryUrl(actualite: { slug: string; titre: string }) {
+export function newsEnquiryUrl(numero: string, actualite: { slug: string; titre: string }) {
   return whatsappUrl(
+    numero,
     [
       `Bonjour ${site.name} !`,
       `Je vous écris au sujet de « ${actualite.titre} ».`,
@@ -34,9 +37,9 @@ export function newsEnquiryUrl(actualite: { slug: string; titre: string }) {
   );
 }
 
-export const greetingUrl = whatsappUrl(
-  `Bonjour ${site.name}, je souhaite des informations.`,
-);
+export function greetingUrl(numero: string) {
+  return whatsappUrl(numero, `Bonjour ${site.name}, je souhaite des informations.`);
+}
 
 export type OrderLine = {
   slug: string;
@@ -56,7 +59,8 @@ export type OrderCustomer = {
   note?: string;
 };
 
-export function orderMessage(lines: OrderLine[], customer?: OrderCustomer) {
+/** `quartier` : lieu du retrait en boutique (`Boutique.quartier`). */
+export function orderMessage(lines: OrderLine[], quartier: string, customer?: OrderCustomer) {
   const total = lines.reduce((sum, l) => sum + l.price * l.quantity, 0);
   // Lien de la fiche sous chaque article (une fois par produit) : WhatsApp affiche
   // l'aperçu du premier lien, avec la photo du produit.
@@ -84,7 +88,7 @@ export function orderMessage(lines: OrderLine[], customer?: OrderCustomer) {
     parts.push(
       customer.mode === "livraison"
         ? `Livraison à : ${customer.area || "à préciser"}`
-        : "Retrait en boutique (Adewui)",
+        : `Retrait en boutique (${quartier})`,
     );
     if (customer.note) parts.push(`Remarque : ${customer.note}`);
   }

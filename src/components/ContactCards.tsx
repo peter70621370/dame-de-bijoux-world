@@ -1,4 +1,4 @@
-import { site } from "@/lib/site";
+import { getBoutique } from "@/lib/data/boutique";
 import { greetingUrl } from "@/lib/whatsapp";
 import { IconArrow, IconPhone, IconPin, IconWhatsApp } from "./icons";
 import { LogoEmbleme } from "./LogoEmbleme";
@@ -6,23 +6,24 @@ import { Reveal } from "./Reveal";
 
 // Bloc contact de l'accueil et de la page Contact : WhatsApp en grand, puisque les
 // commandes passent par là, le téléphone et la boutique à côté.
-export function ContactCards() {
+export async function ContactCards() {
+  const boutique = await getBoutique();
   const cartes = [
     {
       icon: IconPhone,
       label: "Téléphone",
-      title: site.phone,
-      text: `${site.hours}.`,
+      title: boutique.phone,
+      text: `${boutique.hours}.`,
       cta: "Appeler",
-      href: site.phoneHref,
+      href: boutique.lienTelephone,
     },
     {
       icon: IconPin,
       label: "La boutique",
-      title: site.city,
-      text: `${site.address}.`,
+      title: boutique.city,
+      text: `${boutique.address}.`,
       cta: "Itinéraire",
-      href: site.mapsUrl,
+      href: boutique.lienPlan,
       external: true,
     },
   ];
@@ -43,7 +44,7 @@ export function ContactCards() {
           Le plus rapide pour commander ou demander un prix : notre équipe vous répond directement.
         </p>
         <div className="mt-auto pt-10">
-          <a href={greetingUrl} target="_blank" rel="noopener noreferrer" className="bouton bouton-whatsapp">
+          <a href={greetingUrl(boutique.whatsapp)} target="_blank" rel="noopener noreferrer" className="bouton bouton-whatsapp">
             <IconWhatsApp width={18} height={18} /> Écrire sur WhatsApp
           </a>
         </div>

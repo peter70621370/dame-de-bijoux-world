@@ -71,6 +71,8 @@ model Product {
   images       ProductImage[]
   variants     ProductVariant[]
   posts        Post[]
+  /// Fiche de l'accueil qui met cet article en avant sur sa photo.
+  homeFeatures HomePage[]
   createdAt    DateTime         @default(now())
   updatedAt    DateTime         @updatedAt
 
@@ -140,4 +142,73 @@ model Post {
   products    Product[]
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
+}
+
+/// Coordonnées et horaires de la boutique : une seule fiche (id « boutique »).
+/// Sans fiche, le site affiche les valeurs par défaut de src/lib/boutique.ts.
+model ShopSettings {
+  id        String   @id @default("boutique")
+  /// Numéro affiché et appelé, par exemple « +228 92 28 63 63 ».
+  phone     String
+  /// Numéro WhatsApp, chiffres seuls avec l'indicatif : « 22892286363 ».
+  whatsapp  String
+  /// Quartier et repère : « Adewui, dans la VON de l'église baptiste ».
+  address   String
+  city      String
+  /// Lien du plan ; vide : recherche Google Maps sur l'adresse.
+  mapsUrl   String   @default("")
+  hours     String
+  /// Phrase sur le retrait et la livraison, affichée sur les fiches article.
+  delivery  String
+  /// Compte TikTok, sans « @ ».
+  tiktok    String
+  updatedAt DateTime @updatedAt
+}
+
+/// Rubriques de la FAQ (« Commander », « Paiement & livraison »…).
+model FaqSection {
+  id        String        @id @default(cuid())
+  title     String
+  position  Int           @default(0)
+  questions FaqQuestion[]
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+}
+
+model FaqQuestion {
+  id        String     @id @default(cuid())
+  /// Une rubrique qui contient encore des questions ne peut pas être supprimée.
+  section   FaqSection @relation(fields: [sectionId], references: [id], onDelete: Restrict)
+  sectionId String
+  question  String
+  /// Une ligne vide sépare deux paragraphes.
+  answer    String
+  /// Reprise dans le bloc « Vos questions » de l'accueil (trois au plus).
+  onHome    Boolean    @default(false)
+  position  Int        @default(0)
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+
+  @@index([sectionId])
+}
+
+/// Textes et photos de l'accueil : une seule fiche (id « accueil »).
+/// Sans fiche, le site affiche les valeurs par défaut de src/lib/accueil.ts.
+model HomePage {
+  id              String   @id @default("accueil")
+  /// Titre du haut de page ; un mot entre astérisques (*belles*) s'affiche en italique.
+  heroTitle       String
+  heroText        String
+  heroImage       String
+  heroImageAlt    String
+  /// Petite photo en médaillon ; vide : pas de médaillon.
+  heroImage2      String?
+  heroImage2Alt   String   @default("")
+  /// Article signalé sur la photo (vignette avec son nom et son prix).
+  featured        Product? @relation(fields: [featuredId], references: [id], onDelete: SetNull)
+  featuredId      String?
+  wholesaleTitle  String
+  wholesaleText   String
+  wholesalePoints String[]
+  updatedAt       DateTime @updatedAt
 }

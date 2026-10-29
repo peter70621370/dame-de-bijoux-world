@@ -2,6 +2,7 @@
 
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useMemo, useState } from "react";
+import { useBoutique } from "@/components/BoutiqueProvider";
 import { ProductCard } from "@/components/ProductCard";
 import { IconClose, IconSearch, IconWhatsApp } from "@/components/icons";
 import type { Category, Product } from "@/lib/products";
@@ -59,6 +60,7 @@ export function Catalog({ products, categories }: { products: Product[]; categor
   const params = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
+  const boutique = useBoutique();
 
   const sort: SortKey = (params.get("tri") as SortKey) in sorts ? (params.get("tri") as SortKey) : "pertinence";
 
@@ -188,6 +190,7 @@ export function Catalog({ products, categories }: { products: Product[]; categor
               </div>
               <a
                 href={whatsappUrl(
+                  boutique.whatsapp,
                   `Bonjour ${site.name}, je cherche des ${c.label.toLowerCase()}. Pouvez-vous m’envoyer les modèles disponibles et leurs prix ?`,
                 )}
                 target="_blank"
@@ -209,7 +212,7 @@ export function Catalog({ products, categories }: { products: Product[]; categor
           </div>
           <div className="flex w-full shrink-0 flex-col gap-3 sm:w-auto sm:flex-row md:flex-col lg:flex-row">
             <a
-              href={whatsappUrl(`Bonjour ${site.name}, je cherche « ${trimmed} ». L’avez-vous en boutique ?`)}
+              href={whatsappUrl(boutique.whatsapp, `Bonjour ${site.name}, je cherche « ${trimmed} ». L’avez-vous en boutique ?`)}
               target="_blank"
               rel="noopener noreferrer"
               className="bouton bouton-whatsapp"

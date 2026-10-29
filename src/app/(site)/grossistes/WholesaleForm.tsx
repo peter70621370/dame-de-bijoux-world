@@ -1,6 +1,7 @@
 "use client";
 
 import type { FormEvent } from "react";
+import { useBoutique } from "@/components/BoutiqueProvider";
 import { IconWhatsApp } from "@/components/icons";
 import { site } from "@/lib/site";
 import { whatsappUrl } from "@/lib/whatsapp";
@@ -13,6 +14,8 @@ const field =
 
 /** `categories` : noms des catégories du catalogue, proposés en cases à cocher. */
 export function WholesaleForm({ categories }: { categories: string[] }) {
+  const boutique = useBoutique();
+
   function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const d = new FormData(e.currentTarget);
@@ -32,7 +35,7 @@ export function WholesaleForm({ categories }: { categories: string[] }) {
     ]
       .filter((line, i, all) => line !== "" || all[i - 1] !== "")
       .join("\n");
-    window.open(whatsappUrl(message), "_blank", "noopener,noreferrer");
+    window.open(whatsappUrl(boutique.whatsapp, message), "_blank", "noopener,noreferrer");
   }
 
   return (

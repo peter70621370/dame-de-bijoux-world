@@ -4,6 +4,7 @@ import { CarteActualite } from "@/components/CarteActualite";
 import { ContactCards } from "@/components/ContactCards";
 import { ProductCard } from "@/components/ProductCard";
 import { Reveal } from "@/components/Reveal";
+import { TitreAccentue } from "@/components/TitreAccentue";
 import { FaqList } from "@/components/Faq";
 import {
   IconArrow,
@@ -17,56 +18,71 @@ import {
   IconTikTok,
   IconWhatsApp,
 } from "@/components/icons";
+import type { ContenuAccueil } from "@/lib/accueil";
+import type { Boutique } from "@/lib/boutique";
+import { getAccueil } from "@/lib/data/accueil";
 import { getActualitesPubliees, type Actualite } from "@/lib/data/actualites";
+import { getBoutique } from "@/lib/data/boutique";
 import { getCatalogue } from "@/lib/data/catalogue";
+import { getQuestionsAccueil, type FaqItem } from "@/lib/data/faq";
 import { formatPrice, minPrice, type Category, type Product } from "@/lib/products";
-import { faq } from "@/lib/faq";
 import { site } from "@/lib/site";
 import { greetingUrl } from "@/lib/whatsapp";
 
-/** Article mis en avant sur la photo d'accueil (la photo elle-même reste fixe pour l'instant). */
-const SLUG_VEDETTE = "chaine-de-taille-coquillages-etoiles";
-
 export default async function Home() {
-  const [{ categories, products }, actualites] = await Promise.all([getCatalogue(), getActualitesPubliees()]);
+  const [{ categories, products }, actualites, accueil, boutique, questions] = await Promise.all([
+    getCatalogue(),
+    getActualitesPubliees(),
+    getAccueil(),
+    getBoutique(),
+    getQuestionsAccueil(),
+  ]);
   return (
     <>
-      <Hero vedette={products.find((p) => p.slug === SLUG_VEDETTE)} />
-      <Assurances prixMin={minPrice(products)} />
+      <Hero
+        accueil={accueil}
+        boutique={boutique}
+        vedette={accueil.vedette ? products.find((p) => p.slug === accueil.vedette) : undefined}
+      />
+      <Assurances prixMin={minPrice(products)} quartier={boutique.quartier} />
       <Categories categories={categories} />
       {products.length > 0 && <Selection products={products} />}
       {actualites.length > 0 && <Actualites actualites={actualites.slice(0, 3)} />}
       <CommentCommander />
-      <Gros />
+      <Gros accueil={accueil} boutique={boutique} />
       <Maison />
-      <TikTok />
-      <Questions />
+      <TikTok boutique={boutique} />
+      {questions.length > 0 && <Questions items={questions} />}
       <Visite />
     </>
   );
 }
 
-function Hero({ vedette }: { vedette?: Product }) {
+function Hero({ accueil, boutique, vedette }: { accueil: ContenuAccueil; boutique: Boutique; vedette?: Product }) {
   return (
     <section className="grain relative isolate overflow-hidden bg-nuit text-ivoire">
       <div className="halo absolute inset-0 -z-10" aria-hidden />
       <div className="conteneur grid items-center gap-14 pt-10 pb-20 md:pt-20 lg:min-h-[min(calc(100svh-5rem),820px)] lg:grid-cols-12 lg:gap-10 lg:py-16">
         <div className="lg:col-span-6 xl:col-span-6">
           <p className="eyebrow flex animate-monte items-center gap-3 text-or-clair">
-            <IconCrown width={16} height={16} /> {site.signature} · {site.city}
+            <IconCrown width={16} height={16} /> {site.signature} · {boutique.city}
           </p>
           <h1 className="titre mt-7 animate-monte text-[clamp(3.1rem,8.2vw,6.8rem)] [animation-delay:90ms]">
-            L’éclat des <em>belles</em> choses, à&nbsp;petit prix.
+            <TitreAccentue titre={accueil.heroTitle} />
           </h1>
           <p className="mt-7 max-w-lg animate-monte text-base leading-relaxed text-ivoire/75 [animation-delay:180ms] md:text-lg">
-            Bracelets, chaînes de taille, bagues et accessoires de beauté sélectionnés avec exigence.
-            En gros comme au détail, commandés en un clic sur WhatsApp.
+            {accueil.heroText}
           </p>
           <div className="mt-10 flex animate-monte flex-col gap-3 [animation-delay:270ms] sm:flex-row sm:flex-wrap">
             <Link href="/selection" className="bouton bouton-or">
               Découvrir la sélection <IconArrow width={16} height={16} />
             </Link>
-            <a href={greetingUrl} target="_blank" rel="noopener noreferrer" className="bouton bouton-contour-clair">
+            <a
+              href={greetingUrl(boutique.whatsapp)}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="bouton bouton-contour-clair"
+            >
               <IconWhatsApp width={18} height={18} /> Écrire sur WhatsApp
             </a>
           </div>
@@ -76,8 +92,8 @@ function Hero({ vedette }: { vedette?: Product }) {
         <div className="relative order-first lg:order-none lg:col-span-6 lg:pl-6 xl:pl-12">
           <div className="relative mx-auto aspect-[4/5] w-[78%] max-w-[460px] animate-[fondu_1.4s_ease-out_both] overflow-hidden rounded-2xl lg:mr-0">
             <Image
-              src="/produits/chaine-coquillages-etoiles.jpg"
-              alt="Chaîne de taille dorée Coquillages & Étoiles portée sur une jupe en satin"
+              src={accueil.heroImage}
+              alt={accueil.heroImageAlt}
               fill
               priority
               sizes="(min-width:1024px) 40vw, 78vw"
@@ -85,15 +101,17 @@ function Hero({ vedette }: { vedette?: Product }) {
             />
             <div className="absolute inset-0 rounded-2xl ring-1 ring-inset ring-or-clair/25" />
           </div>
-          <div className="absolute bottom-[-6%] left-0 aspect-square w-[42%] max-w-[240px] animate-monte overflow-hidden rounded-2xl border-[6px] border-nuit shadow-2xl [animation-delay:450ms] lg:left-6">
-            <Image
-              src="/produits/bracelet-jonc-vis-clou.jpg"
-              alt="Joncs dorés vis et clou"
-              fill
-              sizes="(min-width:1024px) 16vw, 40vw"
-              className="object-cover"
-            />
-          </div>
+          {accueil.heroImage2 && (
+            <div className="absolute bottom-[-6%] left-0 aspect-square w-[42%] max-w-[240px] animate-monte overflow-hidden rounded-2xl border-[6px] border-nuit shadow-2xl [animation-delay:450ms] lg:left-6">
+              <Image
+                src={accueil.heroImage2}
+                alt={accueil.heroImage2Alt}
+                fill
+                sizes="(min-width:1024px) 16vw, 40vw"
+                className="object-cover"
+              />
+            </div>
+          )}
           {vedette && (
             <Link
               href={`/selection/${vedette.slug}`}
@@ -102,11 +120,11 @@ function Hero({ vedette }: { vedette?: Product }) {
               <span className="grid size-9 place-items-center rounded-full bg-nuit text-or-clair">
                 <IconSparkle width={16} height={16} />
               </span>
-              <span className="leading-tight">
+              <span className="max-w-[11rem] leading-tight sm:max-w-[14rem]">
                 {vedette.isNew && (
                   <span className="block text-[0.65rem] uppercase tracking-[0.18em] text-rubis">Nouveauté</span>
                 )}
-                <span className="block font-serif text-lg">Coquillages & Étoiles</span>
+                <span className="line-clamp-2 font-serif text-lg">{vedette.name}</span>
                 <span className="prix block text-xs text-douce">{formatPrice(vedette.price)}</span>
               </span>
             </Link>
@@ -117,7 +135,7 @@ function Hero({ vedette }: { vedette?: Product }) {
   );
 }
 
-function Assurances({ prixMin }: { prixMin: number | null }) {
+function Assurances({ prixMin, quartier }: { prixMin: number | null; quartier: string }) {
   const items = [
     {
       icon: IconTag,
@@ -126,7 +144,7 @@ function Assurances({ prixMin }: { prixMin: number | null }) {
     },
     { icon: IconBag, title: "Gros & détail", text: "À l’unité ou en quantité, au juste prix." },
     { icon: IconChat, title: "Commande WhatsApp", text: "Votre liste envoyée en un clic." },
-    { icon: IconStore, title: "Retrait ou livraison", text: "En boutique à Adewui ou chez vous." },
+    { icon: IconStore, title: "Retrait ou livraison", text: `En boutique à ${quartier} ou chez vous.` },
   ];
   return (
     <section aria-label="Nos engagements" className="border-b border-filet bg-ivoire">
@@ -305,13 +323,7 @@ function CommentCommander() {
   );
 }
 
-function Gros() {
-  const points = [
-    "Tarifs dégressifs selon les quantités",
-    "Arrivages réguliers, présentés en avant-première sur TikTok",
-    "Conseil pour composer votre assortiment",
-    "Réponse directe sur WhatsApp",
-  ];
+function Gros({ accueil, boutique }: { accueil: ContenuAccueil; boutique: Boutique }) {
   return (
     <section className="grain relative isolate overflow-hidden bg-nuit text-ivoire">
       <div className="halo absolute inset-0 -z-10 opacity-80" aria-hidden />
@@ -319,24 +331,21 @@ function Gros() {
         <Reveal className="lg:col-span-7">
           <p className="eyebrow text-or-clair">Revendeuses, boutiques, événements</p>
           <h2 className="titre mt-5 text-[clamp(2.6rem,6vw,5rem)]">
-            Achetez en gros, <em>au petit prix.</em>
+            <TitreAccentue titre={accueil.wholesaleTitle} />
           </h2>
-          <p className="mt-6 max-w-xl leading-relaxed text-ivoire/75">
-            Vous revendez des bijoux, préparez un mariage ou des cadeaux pour votre équipe ? Dame de Bijoux World
-            est d’abord un grossiste : demandez nos tarifs de gros, nous vous répondons rapidement.
-          </p>
+          <p className="mt-6 max-w-xl leading-relaxed text-ivoire/75">{accueil.wholesaleText}</p>
           <div className="mt-10 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
             <Link href="/grossistes" className="bouton bouton-or">
               Demander les tarifs de gros <IconArrow width={16} height={16} />
             </Link>
-            <a href={site.phoneHref} className="bouton bouton-contour-clair">
-              <IconPhone width={16} height={16} /> {site.phone}
+            <a href={boutique.lienTelephone} className="bouton bouton-contour-clair">
+              <IconPhone width={16} height={16} /> {boutique.phone}
             </a>
           </div>
         </Reveal>
         <Reveal as="ul" delay={150} className="space-y-0 divide-y divide-ivoire/10 border-y border-ivoire/10 lg:col-span-5">
-          {points.map((p) => (
-            <li key={p} className="flex items-center gap-4 py-5">
+          {accueil.wholesalePoints.map((p, i) => (
+            <li key={i} className="flex items-center gap-4 py-5">
               <IconSparkle width={18} height={18} className="shrink-0 text-or" />
               <span className="font-serif text-xl">{p}</span>
             </li>
@@ -375,7 +384,7 @@ function Maison() {
   );
 }
 
-function TikTok() {
+function TikTok({ boutique }: { boutique: Boutique }) {
   return (
     <section className="border-y border-filet bg-sable/50">
       <div className="conteneur flex flex-col items-start justify-between gap-8 py-14 md:flex-row md:items-center md:py-16">
@@ -386,12 +395,12 @@ function TikTok() {
           <div>
             <p className="eyebrow text-or-fonce">Arrivages en vidéo</p>
             <p className="titre mt-2 text-3xl md:text-4xl">
-              Suivez {site.tiktokHandle} pour voir les nouveautés en premier.
+              Suivez {boutique.compteTikTok} pour voir les nouveautés en premier.
             </p>
           </div>
         </Reveal>
         <a
-          href={site.tiktokUrl}
+          href={boutique.lienTikTok}
           target="_blank"
           rel="noopener noreferrer"
           className="bouton bouton-nuit shrink-0"
@@ -403,8 +412,7 @@ function TikTok() {
   );
 }
 
-function Questions() {
-  const items = [faq[0].items[0], faq[1].items[0], faq[1].items[1]];
+function Questions({ items }: { items: FaqItem[] }) {
   return (
     <section className="conteneur grid gap-12 py-20 md:py-28 lg:grid-cols-12">
       <Reveal className="lg:col-span-4">

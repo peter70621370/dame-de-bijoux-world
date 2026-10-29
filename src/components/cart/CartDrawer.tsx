@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useEffect, useId, useRef, useState, type FormEvent } from "react";
 import { formatPrice } from "@/lib/products";
 import { orderMessage, whatsappUrl, type OrderCustomer } from "@/lib/whatsapp";
-import { site } from "@/lib/site";
+import { useBoutique } from "../BoutiqueProvider";
 import {
   IconArrow,
   IconBag,
@@ -21,6 +21,7 @@ import { useCart } from "./CartProvider";
 
 export function CartDrawer() {
   const cart = useCart();
+  const boutique = useBoutique();
   const dialogRef = useRef<HTMLDialogElement>(null);
   const [sent, setSent] = useState(false);
   const [mode, setMode] = useState<OrderCustomer["mode"]>("retrait");
@@ -59,9 +60,10 @@ export function CartDrawer() {
         price: l.product.price,
         regularPrice: l.product.regularPrice,
       })),
+      boutique.quartier,
       customer,
     );
-    window.open(whatsappUrl(message), "_blank", "noopener,noreferrer");
+    window.open(whatsappUrl(boutique.whatsapp, message), "_blank", "noopener,noreferrer");
     setDraft(customer);
     setSent(true);
   }
@@ -214,7 +216,7 @@ export function CartDrawer() {
                 ) : (
                   <p className="flex gap-2 text-sm leading-relaxed text-douce">
                     <IconStore width={18} height={18} className="mt-0.5 shrink-0 text-or-fonce" />
-                    {site.address}, {site.city}.
+                    {boutique.address}, {boutique.city}.
                   </p>
                 )}
                 <label className="block">

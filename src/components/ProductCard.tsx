@@ -1,9 +1,9 @@
 import Image from "next/image";
 import Link from "next/link";
 import { discountPercent, formatPrice, type Product } from "@/lib/products";
-import { productEnquiryUrl } from "@/lib/whatsapp";
+import { BoutonWhatsAppArticle } from "./BoutonWhatsAppArticle";
 import { ShareButton } from "./ShareButton";
-import { IconSparkle, IconWhatsApp } from "./icons";
+import { IconSparkle } from "./icons";
 
 export function ProductCard({ product, priority = false }: { product: Product; priority?: boolean }) {
   const [first, second] = product.images;
@@ -86,15 +86,7 @@ export function ProductCard({ product, priority = false }: { product: Product; p
           >
             Voir les détails
           </Link>
-          <a
-            href={productEnquiryUrl(product)}
-            target="_blank"
-            rel="noopener noreferrer"
-            aria-label={`Commander ${product.name} sur WhatsApp`}
-            className="grid size-11 shrink-0 place-items-center rounded-xl bg-[#1f8f4e] text-white transition-colors hover:bg-[#187a42]"
-          >
-            <IconWhatsApp width={20} height={20} />
-          </a>
+          <BoutonWhatsAppArticle product={product} />
         </div>
       </div>
     </article>

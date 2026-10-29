@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { getActualitesPubliees } from "@/lib/data/actualites";
+import { getBoutique } from "@/lib/data/boutique";
 import { getCatalogue } from "@/lib/data/catalogue";
 import { navigation, site } from "@/lib/site";
 import { greetingUrl } from "@/lib/whatsapp";
@@ -7,7 +8,11 @@ import { IconPhone, IconPin, IconTikTok, IconWhatsApp } from "./icons";
 import { LogoEmbleme } from "./LogoEmbleme";
 
 export async function Footer() {
-  const [{ categories }, actualites] = await Promise.all([getCatalogue(), getActualitesPubliees()]);
+  const [{ categories }, actualites, boutique] = await Promise.all([
+    getCatalogue(),
+    getActualitesPubliees(),
+    getBoutique(),
+  ]);
   return (
     <footer className="grain relative overflow-hidden bg-nuit text-ivoire/80">
       <div className="conteneur relative grid grid-cols-2 gap-x-6 gap-y-12 py-16 md:grid-cols-12 md:gap-12 md:py-24">
@@ -17,11 +22,11 @@ export async function Footer() {
           <p className="eyebrow mt-2 text-or-clair">World · {site.signature}</p>
           <p className="mt-6 max-w-xs text-sm leading-relaxed">
             Bijoux et accessoires de beauté sélectionnés avec exigence, en gros comme au détail, à{" "}
-            {site.city}.
+            {boutique.city}.
           </p>
           <div className="mt-8 flex gap-3">
             <a
-              href={greetingUrl}
+              href={greetingUrl(boutique.whatsapp)}
               target="_blank"
               rel="noopener noreferrer"
               aria-label="WhatsApp"
@@ -30,10 +35,10 @@ export async function Footer() {
               <IconWhatsApp />
             </a>
             <a
-              href={site.tiktokUrl}
+              href={boutique.lienTikTok}
               target="_blank"
               rel="noopener noreferrer"
-              aria-label={`TikTok ${site.tiktokHandle}`}
+              aria-label={`TikTok ${boutique.compteTikTok}`}
               className="grid size-11 place-items-center rounded-full border border-ivoire/20 transition-colors hover:border-or-clair hover:text-or-clair"
             >
               <IconTikTok />
@@ -76,26 +81,26 @@ export async function Footer() {
           <p className="eyebrow text-or-clair">Nous joindre</p>
           <ul className="mt-5 space-y-4 text-sm">
             <li>
-              <a href={site.phoneHref} className="flex items-center gap-3 py-1 hover:text-or-clair">
-                <IconPhone width={18} height={18} className="text-or-clair" /> {site.phone}
+              <a href={boutique.lienTelephone} className="flex items-center gap-3 py-1 hover:text-or-clair">
+                <IconPhone width={18} height={18} className="text-or-clair" /> {boutique.phone}
               </a>
             </li>
             <li>
               <a
-                href={site.mapsUrl}
+                href={boutique.lienPlan}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex gap-3 hover:text-or-clair"
               >
                 <IconPin width={18} height={18} className="mt-0.5 shrink-0 text-or-clair" />
                 <span>
-                  {site.address}
+                  {boutique.address}
                   <br />
-                  {site.city} — {site.country}
+                  {boutique.city} — {site.country}
                 </span>
               </a>
             </li>
-            <li className="pl-[30px] text-ivoire/60">{site.hours}</li>
+            <li className="pl-[30px] text-ivoire/60">{boutique.hours}</li>
           </ul>
         </div>
       </div>

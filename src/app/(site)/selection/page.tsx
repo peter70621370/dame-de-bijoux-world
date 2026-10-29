@@ -4,6 +4,7 @@ import { PageHeader } from "@/components/PageHeader";
 import { ProductCard } from "@/components/ProductCard";
 import { Reveal } from "@/components/Reveal";
 import { IconWhatsApp } from "@/components/icons";
+import { getBoutique } from "@/lib/data/boutique";
 import { getCatalogue } from "@/lib/data/catalogue";
 import { whatsappUrl } from "@/lib/whatsapp";
 import { site } from "@/lib/site";
@@ -17,7 +18,7 @@ export const metadata: Metadata = {
 };
 
 export default async function SelectionPage() {
-  const { products, categories } = await getCatalogue();
+  const [{ products, categories }, boutique] = await Promise.all([getCatalogue(), getBoutique()]);
   return (
     <>
       <PageHeader
@@ -58,6 +59,7 @@ export default async function SelectionPage() {
                   <p className="mt-2 text-sm leading-relaxed text-douce">{c.blurb}</p>
                   <a
                     href={whatsappUrl(
+                      boutique.whatsapp,
                       `Bonjour ${site.name}, je cherche des ${c.label.toLowerCase()}. Pouvez-vous m’envoyer les modèles disponibles et leurs prix ?`,
                     )}
                     target="_blank"

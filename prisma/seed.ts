@@ -1,10 +1,10 @@
-// Remplit une base vide : catalogue d'origine + compte de test facultatif (SEED_ADMIN_* dans .env).
+// Remplit une base vide : catalogue et FAQ d'origine + compte de test facultatif (SEED_ADMIN_* dans .env).
 // Ne modifie jamais ce qui existe déjà : sans risque à relancer, y compris sur la base en ligne.
 import "dotenv/config";
 import bcrypt from "bcryptjs";
 import { PrismaPg } from "@prisma/adapter-pg";
 import { PrismaClient } from "../src/generated/prisma/client";
-import { categoriesInitiales, produitsInitiaux } from "./donnees-initiales";
+import { categoriesInitiales, faqInitiale, produitsInitiaux } from "./donnees-initiales";
 
 const prisma = new PrismaClient({
   adapter: new PrismaPg({ connectionString: process.env.DATABASE_URL! }),
@@ -76,6 +76,32 @@ async function importerCatalogue() {
   console.log(`Catalogue importé : ${categoriesInitiales.length} catégories, ${produitsInitiaux.length} produits.`);
 }
 
+async function importerFaq() {
+  if ((await prisma.faqSection.count()) > 0) {
+    console.log("FAQ déjà présente : rien à importer.");
+    return;
+  }
+
+  for (const [position, rubrique] of faqInitiale.entries()) {
+    await prisma.faqSection.create({
+      data: {
+        title: rubrique.title,
+        position,
+        questions: {
+          create: rubrique.questions.map((q, i) => ({
+            question: q.question,
+            answer: q.answer,
+            onHome: q.onHome ?? false,
+            position: i,
+          })),
+        },
+      },
+    });
+  }
+
+  console.log(`FAQ importée : ${faqInitiale.length} rubriques.`);
+}
+
 async function creerCompteDeTest() {
   const { SEED_ADMIN_NAME: name, SEED_ADMIN_EMAIL: email, SEED_ADMIN_PASSWORD: password } = process.env;
   if (!name || !email || !password) {
@@ -97,6 +123,7 @@ async function creerCompteDeTest() {
 
 async function main() {
   await importerCatalogue();
+  await importerFaq();
   await creerCompteDeTest();
 }
 

@@ -183,3 +183,70 @@ export const produitsInitiaux: ProduitInitial[] = [
     },
   },
 ];
+
+type RubriqueInitiale = {
+  title: string;
+  /** `onHome` : reprise dans le bloc « Vos questions » de l'accueil. */
+  questions: { question: string; answer: string; onHome?: boolean }[];
+};
+
+/** FAQ telle qu'elle était codée dans le site avant le back-office. */
+export const faqInitiale: RubriqueInitiale[] = [
+  {
+    title: "Commander",
+    questions: [
+      {
+        question: "Comment passer commande ?",
+        answer:
+          "Dans la Sélection, choisissez vos articles et leur coloris, ajoutez-les à votre commande, puis indiquez votre nom et votre mode de réception. Votre commande s’ouvre toute prête dans WhatsApp : il ne reste qu’à l’envoyer. Vous pouvez aussi nous appeler au +228 92 28 63 63.",
+        onHome: true,
+      },
+      {
+        question: "Vendez-vous en gros et au détail ?",
+        answer:
+          "Oui. Nous sommes spécialisés dans la vente en gros à petits prix, et nous servons aussi les particuliers à l’unité. Pour les quantités et les tarifs de gros, faites une demande depuis la page Vente en gros : nous vous répondons sur WhatsApp.",
+      },
+      {
+        question: "Où voir les nouveautés ?",
+        answer:
+          "Les arrivages sont présentés régulièrement sur notre compte TikTok @grossistebijoux1 et dans la Sélection de ce site. Les articles qui ne sont pas encore en ligne se commandent sur demande.",
+      },
+    ],
+  },
+  {
+    title: "Paiement & livraison",
+    questions: [
+      {
+        question: "Quels sont les modes de paiement ?",
+        answer: "Les modalités de paiement vous sont confirmées sur WhatsApp au moment de la commande.",
+        onHome: true,
+      },
+      {
+        question: "Livrez-vous ?",
+        answer:
+          "Retrait en boutique à Adewui ou livraison : nous vous indiquons les options et les frais selon votre quartier.",
+        onHome: true,
+      },
+      {
+        question: "Où se trouve la boutique ?",
+        answer:
+          "Adewui, dans la VON de l’église baptiste, Lomé — Togo. Ouverte du lundi au samedi. Pour un retrait, prévenez-nous sur WhatsApp afin que votre commande soit prête.",
+      },
+    ],
+  },
+  {
+    title: "Nos bijoux",
+    questions: [
+      {
+        question: "Les bijoux sont-ils de bonne qualité ?",
+        answer:
+          "Chaque pièce est choisie pour son éclat, sa tenue et sa finition. Nous vous montrons volontiers une photo ou une vidéo de l’article sur WhatsApp avant votre commande.",
+      },
+      {
+        question: "Comment entretenir mes bijoux ?",
+        answer:
+          "Évitez l’eau, les parfums, les crèmes et les frottements. Retirez vos bijoux pour dormir ou faire du sport, essuyez-les avec un chiffon doux et rangez-les séparément, à l’abri de l’humidité.",
+      },
+    ],
+  },
+];

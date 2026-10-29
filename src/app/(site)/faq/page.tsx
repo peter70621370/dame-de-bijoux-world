@@ -4,8 +4,8 @@ import { FaqList } from "@/components/Faq";
 import { JsonLd } from "@/components/JsonLd";
 import { Reveal } from "@/components/Reveal";
 import { IconPhone, IconWhatsApp } from "@/components/icons";
-import { faq } from "@/lib/faq";
-import { site } from "@/lib/site";
+import { getBoutique } from "@/lib/data/boutique";
+import { getFaq } from "@/lib/data/faq";
 import { greetingUrl } from "@/lib/whatsapp";
 
 export const metadata: Metadata = {
@@ -15,7 +15,8 @@ export const metadata: Metadata = {
   alternates: { canonical: "/faq" },
 };
 
-export default function FaqPage() {
+export default async function FaqPage() {
+  const [faq, boutique] = await Promise.all([getFaq(), getBoutique()]);
   return (
     <>
       <PageHeader crumbs={[{ label: "FAQ" }]} eyebrow="Aide" title="Questions fréquentes" />
@@ -33,6 +34,9 @@ export default function FaqPage() {
           </ul>
         </nav>
         <div className="space-y-16 lg:col-span-9">
+          {faq.length === 0 && (
+            <p className="titre text-3xl">Les réponses arrivent bientôt.</p>
+          )}
           {faq.map((g) => (
             <Reveal key={g.title}>
               <h2 id={slug(g.title)} className="titre scroll-mt-28 text-4xl">
@@ -50,10 +54,10 @@ export default function FaqPage() {
               <p className="mt-2 text-sm text-douce">Notre équipe vous répond directement.</p>
             </div>
             <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
-              <a href={greetingUrl} target="_blank" rel="noopener noreferrer" className="bouton bouton-whatsapp">
+              <a href={greetingUrl(boutique.whatsapp)} target="_blank" rel="noopener noreferrer" className="bouton bouton-whatsapp">
                 <IconWhatsApp width={18} height={18} /> WhatsApp
               </a>
-              <a href={site.phoneHref} className="bouton bouton-contour">
+              <a href={boutique.lienTelephone} className="bouton bouton-contour">
                 <IconPhone width={16} height={16} /> Appeler
               </a>
             </div>

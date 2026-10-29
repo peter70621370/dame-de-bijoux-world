@@ -77,4 +77,5 @@ export function estLienValide(url: string) {
   return /^\/(?!\/)\S*$/.test(url) || /^https:\/\/[^\s/]+\.[^\s]+$/.test(url);
 }
 
-export const estLienExterne = (url: string) => url.startsWith("https://");
+/** Ouvert dans un nouvel onglet : adresse extérieure, ou /whatsapp qui renvoie vers la conversation de la boutique. */
+export const estLienExterne = (url: string) => url.startsWith("https://") || url === "/whatsapp";

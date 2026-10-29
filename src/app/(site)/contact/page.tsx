@@ -3,16 +3,20 @@ import { ContactCards } from "@/components/ContactCards";
 import { PageHeader } from "@/components/PageHeader";
 import { Reveal } from "@/components/Reveal";
 import { IconTikTok } from "@/components/icons";
-import { site } from "@/lib/site";
+import { getBoutique } from "@/lib/data/boutique";
 import { ContactForm } from "./ContactForm";
 
-export const metadata: Metadata = {
-  title: "Contact — boutique à Adewui, Lomé",
-  description: `Appelez le ${site.phone}, écrivez-nous sur WhatsApp ou passez à la boutique : ${site.address}, ${site.city}.`,
-  alternates: { canonical: "/contact" },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const boutique = await getBoutique();
+  return {
+    title: `Contact — boutique à ${boutique.quartier}, ${boutique.city}`,
+    description: `Appelez le ${boutique.phone}, écrivez-nous sur WhatsApp ou passez à la boutique : ${boutique.address}, ${boutique.city}.`,
+    alternates: { canonical: "/contact" },
+  };
+}
 
-export default function ContactPage() {
+export default async function ContactPage() {
+  const boutique = await getBoutique();
   return (
     <>
       <PageHeader
@@ -35,12 +39,12 @@ export default function ContactPage() {
               Remplissez ces quelques lignes : votre message s’ouvre dans WhatsApp, prêt à être envoyé.
             </p>
             <a
-              href={site.tiktokUrl}
+              href={boutique.lienTikTok}
               target="_blank"
               rel="noopener noreferrer"
               className="mt-10 inline-flex items-center gap-3 text-sm hover:text-or-fonce"
             >
-              <IconTikTok width={18} height={18} /> Nos nouveautés sur TikTok {site.tiktokHandle}
+              <IconTikTok width={18} height={18} /> Nos nouveautés sur TikTok {boutique.compteTikTok}
             </a>
           </Reveal>
           <Reveal delay={120} className="lg:col-span-6 lg:col-start-7">

@@ -4,7 +4,7 @@ import { PageHeader } from "@/components/PageHeader";
 import { Reveal } from "@/components/Reveal";
 import { IconArrow, IconTikTok } from "@/components/icons";
 import { getActualitesPubliees } from "@/lib/data/actualites";
-import { site } from "@/lib/site";
+import { getBoutique } from "@/lib/data/boutique";
 
 export const metadata: Metadata = {
   title: "Actualités — arrivages et nouveautés",
@@ -14,7 +14,7 @@ export const metadata: Metadata = {
 };
 
 export default async function ActualitesPage() {
-  const actualites = await getActualitesPubliees();
+  const [actualites, boutique] = await Promise.all([getActualitesPubliees(), getBoutique()]);
 
   return (
     <>
@@ -33,12 +33,12 @@ export default async function ActualitesPage() {
               Nos arrivages passent d’abord en vidéo sur TikTok : abonnez-vous pour les voir en premier.
             </p>
             <a
-              href={site.tiktokUrl}
+              href={boutique.lienTikTok}
               target="_blank"
               rel="noopener noreferrer"
               className="bouton bouton-nuit mt-8"
             >
-              <IconTikTok width={18} height={18} /> Suivre {site.tiktokHandle} <IconArrow width={16} height={16} />
+              <IconTikTok width={18} height={18} /> Suivre {boutique.compteTikTok} <IconArrow width={16} height={16} />
             </a>
           </div>
         ) : (

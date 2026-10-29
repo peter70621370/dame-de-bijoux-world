@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { PageHeader } from "@/components/PageHeader";
+import { getBoutique } from "@/lib/data/boutique";
 import { site } from "@/lib/site";
 
 export const metadata: Metadata = {
@@ -41,7 +42,8 @@ const photoCredits = [
   },
 ];
 
-export default function MentionsPage() {
+export default async function MentionsPage() {
+  const boutique = await getBoutique();
   return (
     <>
       <PageHeader crumbs={[{ label: "Mentions légales" }]} eyebrow="Informations" title="Mentions légales" />
@@ -51,9 +53,9 @@ export default function MentionsPage() {
           <p className="mt-3">
             {site.name}
             <br />
-            {site.address}, {site.city} — {site.country}
+            {boutique.address}, {boutique.city} — {site.country}
             <br />
-            Téléphone : {site.phone}
+            Téléphone : {boutique.phone}
           </p>
         </div>
         <div>

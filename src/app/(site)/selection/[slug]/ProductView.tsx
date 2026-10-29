@@ -2,15 +2,16 @@
 
 import Image from "next/image";
 import { useState } from "react";
+import { useBoutique } from "@/components/BoutiqueProvider";
 import { useCart } from "@/components/cart/CartProvider";
 import { Quantity } from "@/components/cart/CartDrawer";
 import { IconBag, IconChat, IconCheck, IconPlus, IconStore, IconTag, IconWhatsApp } from "@/components/icons";
 import { discountPercent, formatPrice, formatPromoEnd, type Product } from "@/lib/products";
-import { site } from "@/lib/site";
 import { orderMessage, whatsappUrl } from "@/lib/whatsapp";
 
 export function ProductView({ product }: { product: Product }) {
   const cart = useCart();
+  const boutique = useBoutique();
   const [variant, setVariant] = useState(product.option?.values[0].label);
   const [imageIndex, setImageIndex] = useState(0);
   const [quantity, setQuantity] = useState(1);
@@ -28,7 +29,9 @@ export function ProductView({ product }: { product: Product }) {
   }
 
   const directOrder = whatsappUrl(
-    orderMessage([
+    boutique.whatsapp,
+    orderMessage(
+      [
       {
         slug: product.slug,
         name: product.name,
@@ -38,7 +41,9 @@ export function ProductView({ product }: { product: Product }) {
         price: product.price,
         regularPrice: product.regularPrice,
       },
-    ]),
+      ],
+      boutique.quartier,
+    ),
   );
 
   const image = product.images[imageIndex] ?? product.images[0];
@@ -174,7 +179,7 @@ export function ProductView({ product }: { product: Product }) {
               <IconStore width={20} height={20} className="shrink-0 text-or-fonce" />
               <span>
                 <strong className="font-medium">Retrait en boutique ou livraison</strong>
-                <span className="block text-douce">{site.delivery}</span>
+                <span className="block text-douce">{boutique.delivery}</span>
               </span>
             </li>
             <li className="flex gap-4 py-4">

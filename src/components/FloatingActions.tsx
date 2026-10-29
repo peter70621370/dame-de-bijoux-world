@@ -2,12 +2,14 @@
 
 import { formatPrice } from "@/lib/products";
 import { greetingUrl } from "@/lib/whatsapp";
+import { useBoutique } from "./BoutiqueProvider";
 import { useCart } from "./cart/CartProvider";
 import { IconBag, IconWhatsApp } from "./icons";
 
 /** Bouton WhatsApp permanent + rappel de commande en cours (surtout utile sur mobile). */
 export function FloatingActions() {
   const cart = useCart();
+  const boutique = useBoutique();
   const hasItems = cart.count > 0;
 
   return (
@@ -34,7 +36,7 @@ export function FloatingActions() {
       </button>
 
       <a
-        href={greetingUrl}
+        href={greetingUrl(boutique.whatsapp)}
         target="_blank"
         rel="noopener noreferrer"
         aria-label="Nous écrire sur WhatsApp"

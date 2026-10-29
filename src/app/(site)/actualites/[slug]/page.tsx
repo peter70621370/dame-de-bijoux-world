@@ -11,6 +11,7 @@ import { Reveal } from "@/components/Reveal";
 import { ShareButton } from "@/components/ShareButton";
 import { IconArrow, IconWhatsApp } from "@/components/icons";
 import { getActualitePubliee, getActualitesPubliees } from "@/lib/data/actualites";
+import { getBoutique } from "@/lib/data/boutique";
 import { getCatalogue } from "@/lib/data/catalogue";
 import { formatDate } from "@/lib/dates";
 import { site } from "@/lib/site";
@@ -64,7 +65,11 @@ function ActualiteSkeleton() {
 
 async function ActualiteContent({ params }: { params: PageProps<"/actualites/[slug]">["params"] }) {
   const { slug } = await params;
-  const [actualites, { products }] = await Promise.all([getActualitesPubliees(), getCatalogue()]);
+  const [actualites, { products }, boutique] = await Promise.all([
+    getActualitesPubliees(),
+    getCatalogue(),
+    getBoutique(),
+  ]);
   const actualite = actualites.find((a) => a.slug === slug);
   if (!actualite) notFound();
 
@@ -128,7 +133,7 @@ async function ActualiteContent({ params }: { params: PageProps<"/actualites/[sl
                 Voir les articles <IconArrow width={16} height={16} />
               </a>
             )}
-            <a href={newsEnquiryUrl(actualite)} target="_blank" rel="noopener noreferrer" className="bouton bouton-whatsapp">
+            <a href={newsEnquiryUrl(boutique.whatsapp, actualite)} target="_blank" rel="noopener noreferrer" className="bouton bouton-whatsapp">
               <IconWhatsApp width={18} height={18} /> Écrire sur WhatsApp
             </a>
             <ShareButton title={actualite.titre} path={adresse} className="self-center border border-filet" />

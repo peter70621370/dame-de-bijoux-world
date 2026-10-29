@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import { Analytics } from "@vercel/analytics/next";
 import { BandeauAnnonce } from "@/components/BandeauAnnonce";
+import { BoutiqueProvider } from "@/components/BoutiqueProvider";
 import { CartProvider } from "@/components/cart/CartProvider";
 import { CartDrawer, CartToast } from "@/components/cart/CartDrawer";
 import { FenetreAnnonce } from "@/components/FenetreAnnonce";
@@ -11,6 +12,7 @@ import { IntroLogo } from "@/components/IntroLogo";
 import { JsonLd } from "@/components/JsonLd";
 import { getActualitesPubliees } from "@/lib/data/actualites";
 import { getAnnoncesEnCours } from "@/lib/data/annonces";
+import { getBoutique } from "@/lib/data/boutique";
 import { getCatalogue } from "@/lib/data/catalogue";
 import { formatPrice, minPrice, toCartProduct } from "@/lib/products";
 import { site } from "@/lib/site";
@@ -18,10 +20,11 @@ import { site } from "@/lib/site";
 // Habillage du site public (en-tête, panier, pied de page…), partagé par les pages
 // et par la page 404. Le back-office (/admin) a le sien.
 export async function SiteChrome({ children }: { children: ReactNode }) {
-  const [{ products }, { bandeau, fenetre }, actualites] = await Promise.all([
+  const [{ products }, { bandeau, fenetre }, actualites, boutique] = await Promise.all([
     getCatalogue(),
     getAnnoncesEnCours(),
     getActualitesPubliees(),
+    getBoutique(),
   ]);
   const prixMin = minPrice(products);
 
@@ -31,18 +34,18 @@ export async function SiteChrome({ children }: { children: ReactNode }) {
     name: site.name,
     description: site.description,
     url: site.url,
-    telephone: site.phone.replace(/\s/g, ""),
+    telephone: boutique.lienTelephone.slice("tel:".length),
     image: `${site.url}/marque/logo-dame-de-bijoux.png`,
     logo: `${site.url}/marque/icone-512.png`,
     ...(prixMin !== null && { priceRange: `À partir de ${formatPrice(prixMin)}` }),
     currenciesAccepted: "XOF",
     address: {
       "@type": "PostalAddress",
-      streetAddress: site.address,
-      addressLocality: site.city,
+      streetAddress: boutique.address,
+      addressLocality: boutique.city,
       addressCountry: "TG",
     },
-    sameAs: [site.tiktokUrl],
+    sameAs: [boutique.lienTikTok],
   };
 
   return (
@@ -55,17 +58,19 @@ export async function SiteChrome({ children }: { children: ReactNode }) {
         Aller au contenu
       </a>
       {bandeau && <BandeauAnnonce bandeau={bandeau} />}
-      <CartProvider products={products.map(toCartProduct)}>
-        <Header actualites={actualites.length > 0} />
-        <main id="contenu" className="flex-1">
-          {children}
-        </main>
-        <Footer />
-        <FloatingActions />
-        <CartToast />
-        <CartDrawer />
-      </CartProvider>
-      {fenetre && <FenetreAnnonce fenetre={fenetre} />}
+      <BoutiqueProvider boutique={boutique}>
+        <CartProvider products={products.map(toCartProduct)}>
+          <Header actualites={actualites.length > 0} />
+          <main id="contenu" className="flex-1">
+            {children}
+          </main>
+          <Footer />
+          <FloatingActions />
+          <CartToast />
+          <CartDrawer />
+        </CartProvider>
+        {fenetre && <FenetreAnnonce fenetre={fenetre} />}
+      </BoutiqueProvider>
       <JsonLd data={localBusiness} />
       <Analytics />
     </>

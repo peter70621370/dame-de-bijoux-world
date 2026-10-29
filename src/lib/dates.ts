@@ -14,3 +14,15 @@ export const jourDe = (d: Date) => d.toISOString().slice(0, 10);
 
 /** Aujourd'hui, au format des champs de date. */
 export const aujourdhui = () => jourDe(new Date());
+
+const dateHeure = new Intl.DateTimeFormat("fr-FR", {
+  day: "numeric",
+  month: "long",
+  year: "numeric",
+  hour: "2-digit",
+  minute: "2-digit",
+  timeZone: "Africa/Lome",
+});
+
+/** « 3 novembre 2026 à 14:05 ». */
+export const formatDateHeure = (d: Date | string) => dateHeure.format(new Date(d));

@@ -1,9 +1,10 @@
 import "server-only";
+import { accueilParDefaut, VEDETTE_PAR_DEFAUT, type ContenuAccueil } from "@/lib/accueil";
 import type { GroupeDestinations, TypeAnnonce } from "@/lib/annonces";
+import { reglagesParDefaut, type ReglagesBoutique } from "@/lib/boutique";
 import { verifySession } from "@/lib/dal";
 import { prisma } from "@/lib/prisma";
 import { isPromoActive } from "@/lib/products";
-import { greetingUrl } from "@/lib/whatsapp";
 
 // Lectures du back-office : toujours fraîches (pas de cache), et réservées aux comptes connectés.
 
@@ -216,7 +217,7 @@ export async function getDestinations(): Promise<GroupeDestinations[]> {
         ...(actualites.length > 0 ? [{ label: "Actualités", url: "/actualites", texte: "Lire les actualités" }] : []),
         { label: "Vente en gros", url: "/grossistes", texte: "Tarifs de gros" },
         { label: "Contact", url: "/contact", texte: "Nous contacter" },
-        { label: "WhatsApp de la boutique", url: greetingUrl, texte: "Écrire sur WhatsApp" },
+        { label: "WhatsApp de la boutique", url: "/whatsapp", texte: "Écrire sur WhatsApp" },
       ],
     },
     {
@@ -314,4 +315,100 @@ export async function getTableauDeBord() {
     })),
     recents: recents.map((p) => ({ ...p, enPromo: isPromoActive(p, now) })),
   };
+}
+
+/** Coordonnées enregistrées, ou celles du site par défaut tant que la boutique n'a rien enregistré (`version` vide). */
+export async function getCoordonnees() {
+  await verifySession();
+  const r = await prisma.shopSettings.findUnique({ where: { id: "boutique" } });
+  const reglages: ReglagesBoutique = r
+    ? {
+        phone: r.phone,
+        whatsapp: r.whatsapp,
+        address: r.address,
+        city: r.city,
+        mapsUrl: r.mapsUrl,
+        hours: r.hours,
+        delivery: r.delivery,
+        tiktok: r.tiktok,
+      }
+    : reglagesParDefaut;
+  return { reglages, version: r?.updatedAt.toISOString() ?? "" };
+}
+
+const ORDRE_FAQ = [{ position: "asc" as const }, { createdAt: "asc" as const }];
+
+/** Rubriques de la FAQ et leurs questions, dans l'ordre du site. */
+export async function getFaqAdmin() {
+  await verifySession();
+  return prisma.faqSection.findMany({
+    orderBy: ORDRE_FAQ,
+    select: {
+      id: true,
+      title: true,
+      questions: { orderBy: ORDRE_FAQ, select: { id: true, question: true, onHome: true } },
+    },
+  });
+}
+
+export async function getChoixRubriques() {
+  await verifySession();
+  return prisma.faqSection.findMany({ orderBy: ORDRE_FAQ, select: { id: true, title: true } });
+}
+
+/** Questions déjà sur l'accueil (hors `sauf`), pour prévenir avant d'en cocher une quatrième. */
+export async function getQuestionsSurAccueil(sauf?: string) {
+  await verifySession();
+  return prisma.faqQuestion.findMany({
+    where: { onHome: true, ...(sauf ? { NOT: { id: sauf } } : {}) },
+    select: { question: true },
+  });
+}
+
+export async function getQuestion(id: string) {
+  await verifySession();
+  return prisma.faqQuestion.findUnique({ where: { id } });
+}
+
+export async function getRubrique(id: string) {
+  await verifySession();
+  return prisma.faqSection.findUnique({
+    where: { id },
+    include: { _count: { select: { questions: true } } },
+  });
+}
+
+/** Contenu de l'accueil enregistré, ou celui du site par défaut tant que la boutique n'a rien enregistré (`version` vide). */
+export async function getAccueilAdmin() {
+  await verifySession();
+  const fiche = await prisma.homePage.findUnique({ where: { id: "accueil" } });
+  if (fiche) {
+    const contenu: ContenuAccueil = {
+      heroTitle: fiche.heroTitle,
+      heroText: fiche.heroText,
+      heroImage: fiche.heroImage,
+      heroImageAlt: fiche.heroImageAlt,
+      heroImage2: fiche.heroImage2,
+      heroImage2Alt: fiche.heroImage2Alt,
+      wholesaleTitle: fiche.wholesaleTitle,
+      wholesaleText: fiche.wholesaleText,
+      wholesalePoints: fiche.wholesalePoints,
+    };
+    return { contenu, featuredId: fiche.featuredId, version: fiche.updatedAt.toISOString() };
+  }
+  const vedette = await prisma.product.findUnique({ where: { slug: VEDETTE_PAR_DEFAUT }, select: { id: true } });
+  return { contenu: accueilParDefaut, featuredId: vedette?.id ?? null, version: "" };
+}
+
+/** Comptes du back-office, le compte connecté en premier. */
+export async function getComptes() {
+  const admin = await verifySession();
+  const comptes = await prisma.adminUser.findMany({
+    orderBy: { createdAt: "asc" },
+    select: { id: true, name: true, email: true, lastLoginAt: true, lockedUntil: true },
+  });
+  const now = new Date();
+  return comptes
+    .map((c) => ({ ...c, vous: c.id === admin.id, bloque: Boolean(c.lockedUntil && c.lockedUntil > now) }))
+    .sort((a, b) => Number(b.vous) - Number(a.vous));
 }

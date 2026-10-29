@@ -3,13 +3,16 @@ import Image from "next/image";
 import { PageHeader } from "@/components/PageHeader";
 import { Reveal } from "@/components/Reveal";
 import { IconArrow, IconTikTok } from "@/components/icons";
-import { site } from "@/lib/site";
+import { getBoutique } from "@/lib/data/boutique";
 
-export const metadata: Metadata = {
-  title: `TikTok ${site.tiktokHandle} — arrivages et inspirations`,
-  description: `Suivez ${site.tiktokHandle} sur TikTok : arrivages, idées d’assortiments et coulisses de Dame de Bijoux World.`,
-  alternates: { canonical: "/tiktok" },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const { compteTikTok } = await getBoutique();
+  return {
+    title: `TikTok ${compteTikTok} — arrivages et inspirations`,
+    description: `Suivez ${compteTikTok} sur TikTok : arrivages, idées d’assortiments et coulisses de Dame de Bijoux World.`,
+    alternates: { canonical: "/tiktok" },
+  };
+}
 
 const piliers = [
   { title: "Arrivages", text: "Découvrez les nouvelles pièces dès leur arrivée, avant tout le monde." },
@@ -23,17 +26,18 @@ const photos = [
   "/produits/chaine-coquillages-etoiles.jpg",
 ];
 
-export default function TikTokPage() {
+export default async function TikTokPage() {
+  const boutique = await getBoutique();
   return (
     <>
       <PageHeader
         crumbs={[{ label: "TikTok" }]}
-        eyebrow={site.tiktokHandle}
+        eyebrow={boutique.compteTikTok}
         title="Rejoignez la communauté."
         intro="Nos arrivages passent d’abord en vidéo. Abonnez-vous pour ne rien manquer, puis commandez vos coups de cœur ici ou sur WhatsApp."
       >
         <a
-          href={site.tiktokUrl}
+          href={boutique.lienTikTok}
           target="_blank"
           rel="noopener noreferrer"
           className="bouton bouton-nuit mt-10 animate-monte [animation-delay:240ms]"

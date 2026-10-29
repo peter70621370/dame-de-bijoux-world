@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { navigation, site } from "@/lib/site";
 import { greetingUrl } from "@/lib/whatsapp";
+import { useBoutique } from "./BoutiqueProvider";
 import { useCart } from "./cart/CartProvider";
 import { LogoEmbleme } from "./LogoEmbleme";
 import { IconBag, IconClose, IconMenu, IconPhone, IconTikTok, IconWhatsApp } from "./icons";
@@ -36,6 +37,7 @@ export function Header({ actualites }: { actualites: boolean }) {
   const nav = navigation(actualites);
   const pathname = usePathname();
   const cart = useCart();
+  const boutique = useBoutique();
   const [menuOpen, setMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
 
@@ -95,11 +97,11 @@ export function Header({ actualites }: { actualites: boolean }) {
 
           <div className="flex items-center gap-1 md:gap-3">
             <a
-              href={site.phoneHref}
+              href={boutique.lienTelephone}
               className="eyebrow hidden items-center gap-2 px-2 py-2 font-times text-[0.75rem] tracking-[0.16em] whitespace-nowrap hover:text-or-fonce xl:flex"
             >
               <IconPhone width={16} height={16} />
-              {site.phone}
+              {boutique.phone}
             </a>
             <button
               type="button"
@@ -164,14 +166,14 @@ export function Header({ actualites }: { actualites: boolean }) {
           ))}
         </nav>
         <div className="conteneur relative mt-auto grid gap-3 pb-[max(2rem,env(safe-area-inset-bottom))]">
-          <a href={greetingUrl} target="_blank" rel="noopener noreferrer" className="bouton bouton-whatsapp w-full">
+          <a href={greetingUrl(boutique.whatsapp)} target="_blank" rel="noopener noreferrer" className="bouton bouton-whatsapp w-full">
             <IconWhatsApp /> Écrire sur WhatsApp
           </a>
           <div className="grid grid-cols-2 gap-3">
-            <a href={site.phoneHref} className="bouton bouton-contour-clair">
+            <a href={boutique.lienTelephone} className="bouton bouton-contour-clair">
               <IconPhone width={16} height={16} /> Appeler
             </a>
-            <a href={site.tiktokUrl} target="_blank" rel="noopener noreferrer" className="bouton bouton-contour-clair">
+            <a href={boutique.lienTikTok} target="_blank" rel="noopener noreferrer" className="bouton bouton-contour-clair">
               <IconTikTok width={16} height={16} /> TikTok
             </a>
           </div>

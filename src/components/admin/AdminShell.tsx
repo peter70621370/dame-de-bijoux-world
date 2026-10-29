@@ -46,12 +46,12 @@ const SECTIONS: { titre?: string; liens: Lien[] }[] = [
   {
     titre: "Site",
     liens: [
-      { href: "/admin/accueil", label: "Page d’accueil", icon: House },
-      { href: "/admin/faq", label: "FAQ", icon: CircleQuestionMark },
-      { href: "/admin/coordonnees", label: "Coordonnées", icon: Store },
+      { href: "/admin/accueil", label: "Page d’accueil", icon: House, pret: true },
+      { href: "/admin/faq", label: "FAQ", icon: CircleQuestionMark, pret: true },
+      { href: "/admin/coordonnees", label: "Coordonnées", icon: Store, pret: true },
     ],
   },
-  { titre: "Administration", liens: [{ href: "/admin/comptes", label: "Comptes", icon: Users }] },
+  { titre: "Administration", liens: [{ href: "/admin/comptes", label: "Comptes", icon: Users, pret: true }] },
 ];
 
 /**
