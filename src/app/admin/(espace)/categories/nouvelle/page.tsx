@@ -14,7 +14,7 @@ export default async function NouvelleCategoriePage() {
 
   return (
     <div className="space-y-6 md:space-y-8">
-      <EnTete retour={{ href: "/admin/categories", label: "Catégories" }} surtitre="Catalogue" titre="Nouvelle catégorie" />
+      <EnTete centre retour={{ href: "/admin/categories", label: "Catégories" }} surtitre="Catalogue" titre="Nouvelle catégorie" />
       <NouvelleVisite>
         <FormulaireCategorie
           nouvelle

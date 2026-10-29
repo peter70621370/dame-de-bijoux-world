@@ -21,6 +21,7 @@ export default async function ActualitePage({ params }: PageProps<"/admin/actual
   return (
     <div className="space-y-6 md:space-y-8">
       <EnTete
+        centre
         retour={{ href: "/admin/actualites", label: "Actualités" }}
         surtitre={post.published ? "En ligne" : "Brouillon"}
         titre={post.title}
@@ -62,7 +63,7 @@ export default async function ActualitePage({ params }: PageProps<"/admin/actual
           action={supprimerActualite.bind(null, post.id)}
           libelle="Supprimer l’actualité"
           titre="Supprimer cette actualité ?"
-          message={`« ${post.title} »${post.image ? " et sa photo seront effacées" : " sera effacée"} du site et du back-office. C’est définitif : pour la retirer seulement du site, décochez plutôt « En ligne ».`}
+          message={`« ${post.title} »${post.image ? " et sa photo seront effacées" : " sera effacée"} du site et de l’espace admin. C’est définitif : pour la retirer seulement du site, décochez plutôt « En ligne ».`}
         />
       </section>
     </div>

@@ -4,6 +4,7 @@ import { ChevronRight, Plus } from "lucide-react";
 import { Avis, EnTete, Pastille } from "@/components/admin/ui";
 import { getComptes } from "@/lib/data/admin";
 import { formatDateHeure } from "@/lib/dates";
+import { ROLES } from "@/lib/roles";
 
 export const metadata: Metadata = {
   title: "Comptes",
@@ -18,7 +19,7 @@ export default async function ComptesPage({ searchParams }: PageProps<"/admin/co
       <EnTete
         surtitre="Administration"
         titre="Comptes"
-        description="Les personnes qui peuvent se connecter au back-office."
+        description="Les personnes qui peuvent se connecter à l’espace admin."
         action={
           <Link href="/admin/comptes/nouveau" className="bouton bouton-nuit w-full sm:w-auto">
             <Plus size={16} aria-hidden /> Nouveau compte
@@ -38,7 +39,7 @@ export default async function ComptesPage({ searchParams }: PageProps<"/admin/co
         {comptes.map((c) => (
           <li key={c.id}>
             <Link
-              href={`/admin/comptes/${c.id}`}
+              href={c.vous ? "/admin/mon-compte" : `/admin/comptes/${c.id}`}
               className="flex items-center gap-3 px-4 py-4 transition-colors hover:bg-sable/40 md:gap-4 md:px-5"
             >
               <span
@@ -50,7 +51,8 @@ export default async function ComptesPage({ searchParams }: PageProps<"/admin/co
               <span className="min-w-0 flex-1">
                 <span className="flex flex-wrap items-center gap-x-2 gap-y-1">
                   <span className="truncate font-medium">{c.name}</span>
-                  {c.vous && <Pastille ton="or">Vous</Pastille>}
+                  <Pastille ton={c.role === "ADMIN" ? "or" : "gris"}>{ROLES[c.role].label}</Pastille>
+                  {c.vous && <Pastille ton="vert">Vous</Pastille>}
                   {c.bloque && <Pastille ton="rubis">Bloqué</Pastille>}
                 </span>
                 <span className="mt-0.5 block truncate text-sm text-douce">{c.email}</span>
@@ -65,8 +67,9 @@ export default async function ComptesPage({ searchParams }: PageProps<"/admin/co
       </ul>
 
       <p className="text-sm leading-relaxed text-douce">
-        Après cinq mots de passe erronés d’affilée, un compte est bloqué quinze minutes. Un mot de passe oublié ? L’autre
-        compte peut en donner un nouveau depuis sa fiche.
+        Un utilisateur gère les articles, catégories, promotions, le bandeau et les actualités ; un administrateur, tout
+        l’espace admin. Après cinq mots de passe erronés d’affilée, un compte est bloqué quinze minutes. Un mot de passe
+        oublié ? Un administrateur peut en donner un nouveau depuis la fiche du compte.
       </p>
     </div>
   );

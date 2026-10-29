@@ -1,6 +1,6 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
-import { ArrowLeft, CircleCheck } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 
 // Éléments communs aux pages du back-office.
 
@@ -19,15 +19,20 @@ export function EnTete({
   description,
   retour,
   action,
+  centre = false,
 }: {
   surtitre?: string;
   titre: string;
   description?: ReactNode;
   retour?: { href: string; label: string };
   action?: ReactNode;
+  /** Pages de formulaire : l'en-tête s'aligne sur la colonne centrée du formulaire. */
+  centre?: boolean;
 }) {
   return (
-    <header className="flex flex-wrap items-end justify-between gap-x-6 gap-y-4">
+    <header
+      className={`flex flex-wrap items-end justify-between gap-x-6 gap-y-4 ${centre ? "mx-auto w-full max-w-3xl" : ""}`}
+    >
       <div className="min-w-0">
         {retour && (
           <Link
@@ -66,6 +71,13 @@ export function Carte({
   );
 }
 
+/**
+ * Deux champs côte à côte (une colonne sur téléphone). Chaque champ y partage les lignes de la grille
+ * (libellé, aide, saisie, erreur) : les cases restent alignées même si un seul des deux a une aide.
+ */
+export const ligneChamps =
+  "grid gap-5 sm:grid-cols-2 sm:grid-rows-[repeat(4,auto)] sm:gap-y-0 sm:*:row-span-4 sm:*:grid sm:*:grid-rows-subgrid";
+
 export function Champ({
   id,
   label,
@@ -81,13 +93,14 @@ export function Champ({
 }) {
   return (
     <div>
-      <label htmlFor={id} className="block text-sm font-medium">
+      {/* Lignes fixées pour ligneChamps ; sans effet ailleurs. */}
+      <label htmlFor={id} className="row-start-1 block text-sm font-medium">
         {label}
       </label>
-      {aide && <p className="mt-0.5 text-[0.8rem] leading-snug text-douce">{aide}</p>}
-      <div className="mt-2">{children}</div>
+      {aide && <p className="row-start-2 mt-0.5 text-[0.8rem] leading-snug text-douce">{aide}</p>}
+      <div className="row-start-3 mt-2">{children}</div>
       {erreur && (
-        <p id={`${id}-erreur`} className="mt-1.5 text-sm text-rubis">
+        <p id={`${id}-erreur`} className="row-start-4 mt-1.5 text-sm text-rubis">
           {erreur}
         </p>
       )}
@@ -133,15 +146,5 @@ export function Pastille({ ton, children }: { ton: keyof typeof TONS; children: 
   return <span className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${TONS[ton]}`}>{children}</span>;
 }
 
-/** Confirmation affichée après une action (article ajouté, supprimé…). */
-export function Avis({ children }: { children: ReactNode }) {
-  return (
-    <p
-      role="status"
-      className="flex items-start gap-3 rounded-2xl border border-[#1f8f4e]/25 bg-[#1f8f4e]/8 px-4 py-3 text-sm text-[#187a42]"
-    >
-      <CircleCheck size={18} aria-hidden className="mt-px shrink-0" />
-      <span>{children}</span>
-    </p>
-  );
-}
+/** Confirmation après une action (article ajouté, supprimé…) : fenêtre « Succès », voir Confirmation.tsx. */
+export { Avis } from "./Confirmation";

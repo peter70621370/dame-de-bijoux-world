@@ -22,6 +22,7 @@ export default async function AnnoncePage({ params }: PageProps<"/admin/annonces
   return (
     <div className="space-y-6 md:space-y-8">
       <EnTete
+        centre
         retour={{ href: "/admin/annonces", label: "Bandeau & fenêtre" }}
         surtitre="Annonces"
         titre={bandeau ? "Bandeau" : "Fenêtre à l’ouverture"}

@@ -3,7 +3,7 @@
 import { refresh, updateTag } from "next/cache";
 import { redirect, RedirectType } from "next/navigation";
 import { z } from "zod";
-import { verifySession } from "@/lib/dal";
+import { verifyAdmin } from "@/lib/dal";
 import { FAQ_TAG } from "@/lib/data/faq";
 import { prisma } from "@/lib/prisma";
 import { erreursParChamp, type EtatFormulaire } from "./formulaires";
@@ -26,7 +26,7 @@ export async function enregistrerQuestion(
   _etat: EtatFormulaire,
   formData: FormData,
 ): Promise<EtatFormulaire> {
-  await verifySession();
+  await verifyAdmin();
 
   const texte = (cle: string) => String(formData.get(cle) ?? "");
   const resultat = schemaQuestion.safeParse({
@@ -87,7 +87,7 @@ export async function enregistrerQuestion(
 }
 
 export async function supprimerQuestion(id: string) {
-  await verifySession();
+  await verifyAdmin();
   await prisma.faqQuestion.deleteMany({ where: { id } });
   updateTag(FAQ_TAG);
   redirect("/admin/faq?suppression=question", RedirectType.replace);
@@ -95,7 +95,7 @@ export async function supprimerQuestion(id: string) {
 
 /** Monte (-1) ou descend (1) la question d'un rang dans sa rubrique. */
 export async function deplacerQuestion(id: string, sens: -1 | 1) {
-  await verifySession();
+  await verifyAdmin();
   if (sens !== -1 && sens !== 1) return;
 
   const question = await prisma.faqQuestion.findUnique({ where: { id }, select: { sectionId: true } });
@@ -126,7 +126,7 @@ export async function enregistrerRubrique(
   _etat: EtatFormulaire,
   formData: FormData,
 ): Promise<EtatFormulaire> {
-  await verifySession();
+  await verifyAdmin();
 
   const resultat = schemaRubrique.safeParse({ title: String(formData.get("title") ?? "") });
   if (!resultat.success) {
@@ -167,7 +167,7 @@ export async function enregistrerRubrique(
 
 /** Supprime une rubrique vide ; une rubrique qui contient encore des questions est conservée. */
 export async function supprimerRubrique(id: string) {
-  await verifySession();
+  await verifyAdmin();
 
   const rubrique = await prisma.faqSection.findUnique({
     where: { id },
@@ -184,7 +184,7 @@ export async function supprimerRubrique(id: string) {
 
 /** Monte (-1) ou descend (1) la rubrique d'un rang. */
 export async function deplacerRubrique(id: string, sens: -1 | 1) {
-  await verifySession();
+  await verifyAdmin();
   if (sens !== -1 && sens !== 1) return;
 
   const ordre = await prisma.faqSection.findMany({ orderBy: ORDRE, select: { id: true } });

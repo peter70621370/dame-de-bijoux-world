@@ -1,8 +1,8 @@
 // Squelettes affichés pendant le chargement des pages du back-office (fichiers loading.tsx).
 
-function EnTeteVide() {
+function EnTeteVide({ centre = false }: { centre?: boolean }) {
   return (
-    <div className="space-y-3">
+    <div className={`space-y-3 ${centre ? "mx-auto max-w-3xl" : ""}`}>
       <div className="h-3 w-28 rounded bg-sable" />
       <div className="h-10 w-56 rounded-xl bg-sable" />
     </div>
@@ -32,7 +32,7 @@ export function SqueletteListe() {
 export function SqueletteFormulaire() {
   return (
     <div className="animate-pulse space-y-6 md:space-y-8" aria-hidden>
-      <EnTeteVide />
+      <EnTeteVide centre />
       <div className="mx-auto max-w-3xl space-y-5">
         <div className="h-56 rounded-2xl bg-white" />
         <div className="h-96 rounded-2xl bg-white" />

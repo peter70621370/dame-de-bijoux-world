@@ -22,6 +22,7 @@ export default async function PromotionPage({ params }: PageProps<"/admin/promot
   return (
     <div className="space-y-6 md:space-y-8">
       <EnTete
+        centre
         retour={{ href: "/admin/promotions", label: "Promotions" }}
         surtitre="Promotion en cours"
         titre={article.name}

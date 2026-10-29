@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Suspense, useRef, type ReactNode } from "react";
+import { Suspense, use, useRef, type ReactNode } from "react";
 import {
   BadgePercent,
   CircleQuestionMark,
@@ -20,13 +20,17 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import { LogoEmbleme } from "@/components/LogoEmbleme";
+import { ConfirmationProvider } from "@/components/admin/Confirmation";
+import type { Role } from "@/generated/prisma/enums";
 
-type Session = { nom: ReactNode; compte: ReactNode };
+/** `role` : celui du compte connecté, lu par le serveur ; null tant qu'il n'est pas connu ou s'il n'y a plus de session. */
+type Session = { nom: ReactNode; compte: ReactNode; role: Promise<Role | null> };
 
-type Lien ={ href: string; label: string; icon: LucideIcon; pret?: boolean };
+type Lien = { href: string; label: string; icon: LucideIcon; pret?: boolean };
 
 // Toutes les rubriques prévues ; celles qui ne sont pas encore construites restent visibles, marquées « Bientôt ».
-const SECTIONS: { titre?: string; liens: Lien[] }[] = [
+// `admin` : rubriques montrées aux seuls administrateurs (les pages elles-mêmes le vérifient aussi, voir verifyAdmin).
+const SECTIONS: { titre?: string; admin?: true; liens: Lien[] }[] = [
   { liens: [{ href: "/admin", label: "Tableau de bord", icon: LayoutDashboard, pret: true }] },
   {
     titre: "Catalogue",
@@ -45,20 +49,21 @@ const SECTIONS: { titre?: string; liens: Lien[] }[] = [
   },
   {
     titre: "Site",
+    admin: true,
     liens: [
       { href: "/admin/accueil", label: "Page d’accueil", icon: House, pret: true },
       { href: "/admin/faq", label: "FAQ", icon: CircleQuestionMark, pret: true },
       { href: "/admin/coordonnees", label: "Coordonnées", icon: Store, pret: true },
     ],
   },
-  { titre: "Administration", liens: [{ href: "/admin/comptes", label: "Comptes", icon: Users, pret: true }] },
+  { titre: "Administration", admin: true, liens: [{ href: "/admin/comptes", label: "Comptes", icon: Users, pret: true }] },
 ];
 
 /**
  * Habillage du back-office : menu latéral (tiroir sur téléphone) et barre du haut.
  * `nom` et `compte` : nom affiché sous le logo et bloc du compte connecté, rendus par le serveur.
  */
-export function AdminShell({ nom, compte, children }: Session & { children: ReactNode }) {
+export function AdminShell({ nom, compte, role, children }: Session & { children: ReactNode }) {
   const tiroir = useRef<HTMLDialogElement>(null);
 
   return (
@@ -84,12 +89,12 @@ export function AdminShell({ nom, compte, children }: Session & { children: Reac
       </a>
 
       <aside className="fixed inset-y-0 left-0 hidden w-68 bg-nuit text-ivoire lg:block">
-        <Rubriques nom={nom} compte={compte} />
+        <Rubriques nom={nom} compte={compte} role={role} />
       </aside>
 
       <dialog
         ref={tiroir}
-        aria-label="Menu du back-office"
+        aria-label="Menu de l’espace admin"
         onClick={(e) => e.target === e.currentTarget && e.currentTarget.close()}
         className="m-0 h-dvh max-h-none w-80 max-w-[86vw] border-0 bg-nuit p-0 text-ivoire open:animate-glisse backdrop:bg-nuit/60 backdrop:backdrop-blur-sm lg:hidden"
       >
@@ -101,7 +106,7 @@ export function AdminShell({ nom, compte, children }: Session & { children: Reac
         >
           <X size={20} aria-hidden />
         </button>
-        <Rubriques nom={nom} compte={compte} onNavigate={() => tiroir.current?.close()} />
+        <Rubriques nom={nom} compte={compte} role={role} onNavigate={() => tiroir.current?.close()} />
       </dialog>
 
       {/* Sur ordinateur, le menu reste affiché : la barre ne sert qu'au téléphone. */}
@@ -117,13 +122,13 @@ export function AdminShell({ nom, compte, children }: Session & { children: Reac
           </button>
           <Link href="/admin" className="flex items-center gap-2.5">
             <LogoEmbleme className="h-7 w-auto text-or-fonce" />
-            <span className="font-serif text-xl leading-none">Back-office</span>
+            <span className="font-serif text-xl leading-none">Espace admin</span>
           </Link>
         </div>
       </header>
 
       <main id="contenu-admin" className="mx-auto w-full max-w-6xl flex-1 px-4 py-6 md:px-8 md:py-10">
-        {children}
+        <ConfirmationProvider>{children}</ConfirmationProvider>
       </main>
     </div>
   );
@@ -131,32 +136,35 @@ export function AdminShell({ nom, compte, children }: Session & { children: Reac
 
 /**
  * Menu, rubrique en cours surlignée. Sur les pages à adresse variable (une fiche article…), l'adresse n'est connue
- * qu'à la visite : le menu s'affiche d'abord sans surlignage, qui arrive aussitôt après.
+ * qu'à la visite, et le rôle qu'après lecture de la session : le menu s'affiche d'abord sans surlignage ni rubriques
+ * d'administrateur, qui arrivent aussitôt après.
  */
-function Rubriques(props: Session & { onNavigate?: () => void }) {
+function Rubriques({ role, ...props }: Session & { onNavigate?: () => void }) {
   return (
-    <Suspense fallback={<Navigation pathname={null} {...props} />}>
-      <NavigationActive {...props} />
+    <Suspense fallback={<Navigation pathname={null} admin={false} {...props} />}>
+      <NavigationActive role={role} {...props} />
     </Suspense>
   );
 }
 
-function NavigationActive(props: Session & { onNavigate?: () => void }) {
-  return <Navigation pathname={usePathname()} {...props} />;
+function NavigationActive({ role, ...props }: Session & { onNavigate?: () => void }) {
+  return <Navigation pathname={usePathname()} admin={use(role) === "ADMIN"} {...props} />;
 }
 
 function Navigation({
   pathname,
+  admin,
   nom,
   compte,
   onNavigate,
-}: Session & {
+}: Omit<Session, "role"> & {
   pathname: string | null;
+  admin: boolean;
   onNavigate?: () => void;
 }) {
   return (
     // Logo en haut et compte en bas restent en place ; seules les rubriques défilent sur un écran bas.
-    <nav aria-label="Back-office" className="flex h-full flex-col px-4 pt-6 pb-4">
+    <nav aria-label="Espace admin" className="flex h-full flex-col px-4 pt-6 pb-4">
       <Link href="/admin" onClick={onNavigate} className="flex shrink-0 items-center gap-3 px-2">
         <LogoEmbleme className="h-10 w-auto text-or" />
         <span className="min-w-0 leading-tight whitespace-nowrap">
@@ -167,7 +175,7 @@ function Navigation({
 
       {/* Barre de défilement fine et sombre, assortie au menu (la barre claire du navigateur jurait). */}
       <div className="-mx-4 mt-6 min-h-0 flex-1 space-y-5 overflow-y-auto px-4 pb-5 [scrollbar-color:rgb(255_255_255/0.18)_transparent] [scrollbar-width:thin]">
-        {SECTIONS.map((section, i) => (
+        {SECTIONS.filter((section) => admin || !section.admin).map((section, i) => (
           <div key={section.titre ?? i}>
             {section.titre && (
               <p className="eyebrow mb-1.5 px-3 text-[0.6rem] text-ivoire/40">{section.titre}</p>
@@ -220,7 +228,8 @@ function Navigation({
         >
           <ExternalLink size={18} aria-hidden className="shrink-0" /> Voir le site
         </a>
-        {compte}
+        {/* Le lien « Mon compte » vient du serveur : le tiroir se ferme au clic comme pour les rubriques. */}
+        <div onClick={(e) => (e.target as HTMLElement).closest("a") && onNavigate?.()}>{compte}</div>
       </div>
     </nav>
   );

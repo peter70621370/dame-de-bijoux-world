@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { NouvelleVisite } from "@/components/admin/NouvelleVisite";
 import { EnTete } from "@/components/admin/ui";
 import { creerCompte } from "@/lib/actions/comptes";
-import { verifySession } from "@/lib/dal";
+import { verifyAdmin } from "@/lib/dal";
 import { FormulaireNouveauCompte } from "../Formulaires";
 
 export const metadata: Metadata = {
@@ -10,11 +10,11 @@ export const metadata: Metadata = {
 };
 
 export default async function NouveauComptePage() {
-  await verifySession();
+  await verifyAdmin();
 
   return (
     <div className="space-y-6 md:space-y-8">
-      <EnTete retour={{ href: "/admin/comptes", label: "Comptes" }} surtitre="Administration" titre="Nouveau compte" />
+      <EnTete centre retour={{ href: "/admin/comptes", label: "Comptes" }} surtitre="Administration" titre="Nouveau compte" />
       <NouvelleVisite>
         <FormulaireNouveauCompte action={creerCompte} />
       </NouvelleVisite>

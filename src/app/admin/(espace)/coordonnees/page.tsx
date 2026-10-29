@@ -15,6 +15,7 @@ export default async function CoordonneesPage() {
   return (
     <div className="space-y-6 md:space-y-8">
       <EnTete
+        centre
         surtitre="Site"
         titre="Coordonnées"
         description="Téléphone, WhatsApp, adresse et horaires, partout sur le site."

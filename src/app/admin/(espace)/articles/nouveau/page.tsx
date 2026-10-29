@@ -15,7 +15,7 @@ export default async function NouvelArticlePage() {
 
   return (
     <div className="space-y-6 md:space-y-8">
-      <EnTete retour={{ href: "/admin/articles", label: "Articles" }} surtitre="Catalogue" titre="Nouvel article" />
+      <EnTete centre retour={{ href: "/admin/articles", label: "Articles" }} surtitre="Catalogue" titre="Nouvel article" />
       {categories.length === 0 ? (
         <p className="rounded-2xl border border-dashed border-filet px-5 py-10 text-center text-sm text-douce">
           Créez d’abord une{" "}

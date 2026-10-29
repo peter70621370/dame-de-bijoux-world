@@ -116,7 +116,7 @@ async function creerCompteDeTest() {
   }
 
   await prisma.adminUser.create({
-    data: { name, email: adresse, passwordHash: await bcrypt.hash(password, 12) },
+    data: { name, email: adresse, role: "ADMIN", passwordHash: await bcrypt.hash(password, 12) },
   });
   console.log("Compte de test créé (identifiants dans .env).");
 }

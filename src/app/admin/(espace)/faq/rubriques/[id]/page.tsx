@@ -20,7 +20,7 @@ export default async function RubriquePage({ params }: PageProps<"/admin/faq/rub
 
   return (
     <div className="space-y-6 md:space-y-8">
-      <EnTete retour={{ href: "/admin/faq", label: "FAQ" }} surtitre="Rubrique" titre={rubrique.title} />
+      <EnTete centre retour={{ href: "/admin/faq", label: "FAQ" }} surtitre="Rubrique" titre={rubrique.title} />
 
       <NouvelleVisite>
         <FormulaireRubrique

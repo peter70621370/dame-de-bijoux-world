@@ -2,7 +2,7 @@
 
 import { refresh, updateTag } from "next/cache";
 import { z } from "zod";
-import { verifySession } from "@/lib/dal";
+import { verifyAdmin } from "@/lib/dal";
 import { ACCUEIL_TAG } from "@/lib/data/accueil";
 import { prisma } from "@/lib/prisma";
 import { estPhotoAutorisee, supprimerPhoto } from "@/lib/stockage";
@@ -48,7 +48,7 @@ const schema = z
 
 /** Enregistre les textes et photos de l'accueil : une seule fiche, créée au premier enregistrement. */
 export async function enregistrerAccueil(_etat: EtatFormulaire, formData: FormData): Promise<EtatFormulaire> {
-  await verifySession();
+  await verifyAdmin();
 
   const champ = (cle: string) => String(formData.get(cle) ?? "");
   const resultat = schema.safeParse({

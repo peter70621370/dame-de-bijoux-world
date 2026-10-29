@@ -2,7 +2,7 @@ import "server-only";
 import { accueilParDefaut, VEDETTE_PAR_DEFAUT, type ContenuAccueil } from "@/lib/accueil";
 import type { GroupeDestinations, TypeAnnonce } from "@/lib/annonces";
 import { reglagesParDefaut, type ReglagesBoutique } from "@/lib/boutique";
-import { verifySession } from "@/lib/dal";
+import { verifyAdmin, verifySession } from "@/lib/dal";
 import { prisma } from "@/lib/prisma";
 import { isPromoActive } from "@/lib/products";
 
@@ -319,7 +319,7 @@ export async function getTableauDeBord() {
 
 /** Coordonnées enregistrées, ou celles du site par défaut tant que la boutique n'a rien enregistré (`version` vide). */
 export async function getCoordonnees() {
-  await verifySession();
+  await verifyAdmin();
   const r = await prisma.shopSettings.findUnique({ where: { id: "boutique" } });
   const reglages: ReglagesBoutique = r
     ? {
@@ -340,7 +340,7 @@ const ORDRE_FAQ = [{ position: "asc" as const }, { createdAt: "asc" as const }];
 
 /** Rubriques de la FAQ et leurs questions, dans l'ordre du site. */
 export async function getFaqAdmin() {
-  await verifySession();
+  await verifyAdmin();
   return prisma.faqSection.findMany({
     orderBy: ORDRE_FAQ,
     select: {
@@ -352,13 +352,13 @@ export async function getFaqAdmin() {
 }
 
 export async function getChoixRubriques() {
-  await verifySession();
+  await verifyAdmin();
   return prisma.faqSection.findMany({ orderBy: ORDRE_FAQ, select: { id: true, title: true } });
 }
 
 /** Questions déjà sur l'accueil (hors `sauf`), pour prévenir avant d'en cocher une quatrième. */
 export async function getQuestionsSurAccueil(sauf?: string) {
-  await verifySession();
+  await verifyAdmin();
   return prisma.faqQuestion.findMany({
     where: { onHome: true, ...(sauf ? { NOT: { id: sauf } } : {}) },
     select: { question: true },
@@ -366,12 +366,12 @@ export async function getQuestionsSurAccueil(sauf?: string) {
 }
 
 export async function getQuestion(id: string) {
-  await verifySession();
+  await verifyAdmin();
   return prisma.faqQuestion.findUnique({ where: { id } });
 }
 
 export async function getRubrique(id: string) {
-  await verifySession();
+  await verifyAdmin();
   return prisma.faqSection.findUnique({
     where: { id },
     include: { _count: { select: { questions: true } } },
@@ -380,7 +380,7 @@ export async function getRubrique(id: string) {
 
 /** Contenu de l'accueil enregistré, ou celui du site par défaut tant que la boutique n'a rien enregistré (`version` vide). */
 export async function getAccueilAdmin() {
-  await verifySession();
+  await verifyAdmin();
   const fiche = await prisma.homePage.findUnique({ where: { id: "accueil" } });
   if (fiche) {
     const contenu: ContenuAccueil = {
@@ -402,10 +402,10 @@ export async function getAccueilAdmin() {
 
 /** Comptes du back-office, le compte connecté en premier. */
 export async function getComptes() {
-  const admin = await verifySession();
+  const admin = await verifyAdmin();
   const comptes = await prisma.adminUser.findMany({
     orderBy: { createdAt: "asc" },
-    select: { id: true, name: true, email: true, lastLoginAt: true, lockedUntil: true },
+    select: { id: true, name: true, email: true, role: true, lastLoginAt: true, lockedUntil: true },
   });
   const now = new Date();
   return comptes

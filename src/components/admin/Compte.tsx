@@ -1,22 +1,29 @@
+import Link from "next/link";
 import { LogOut } from "lucide-react";
 import { deconnexion } from "@/lib/actions/auth";
 import { verifySession } from "@/lib/dal";
 
-/** Compte connecté en bas du menu, avec la déconnexion. */
+/** Compte connecté en bas du menu : lien vers « Mon compte », et la déconnexion. */
 export async function Compte() {
   const admin = await verifySession();
   return (
-    <div className="flex items-center gap-3 px-2">
-      <span
-        aria-hidden
-        className="grid size-9 shrink-0 place-items-center rounded-full bg-white/10 font-serif text-lg text-or-clair"
+    <div className="flex items-center gap-1">
+      <Link
+        href="/admin/mon-compte"
+        title="Mon compte"
+        className="flex min-w-0 flex-1 items-center gap-3 rounded-xl px-2 py-1.5 transition-colors hover:bg-white/5"
       >
-        {admin.name.charAt(0).toUpperCase()}
-      </span>
-      <span className="min-w-0 flex-1 leading-tight">
-        <span className="block truncate text-sm font-medium text-ivoire">{admin.name}</span>
-        <span className="block truncate text-xs text-ivoire/50">{admin.email}</span>
-      </span>
+        <span
+          aria-hidden
+          className="grid size-9 shrink-0 place-items-center rounded-full bg-white/10 font-serif text-lg text-or-clair"
+        >
+          {admin.name.charAt(0).toUpperCase()}
+        </span>
+        <span className="min-w-0 flex-1 leading-tight">
+          <span className="block truncate text-sm font-medium text-ivoire">{admin.name}</span>
+          <span className="block truncate text-xs text-ivoire/50">{admin.email}</span>
+        </span>
+      </Link>
       <form action={deconnexion}>
         <button
           type="submit"

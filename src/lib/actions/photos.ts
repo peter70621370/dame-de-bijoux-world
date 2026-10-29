@@ -19,8 +19,10 @@ export async function televerserPhoto(
   dossier: DossierPhotos,
   formData: FormData,
 ): Promise<{ url: string } | { erreur: string }> {
-  await verifySession();
+  const admin = await verifySession();
   if (!DOSSIERS_PHOTOS.includes(dossier)) return { erreur: "Destination inconnue." };
+  // Les photos de l'accueil ne servent qu'à la page d'accueil, réservée aux administrateurs.
+  if (dossier === "accueil" && admin.role !== "ADMIN") return { erreur: "Réservé aux administrateurs." };
 
   const photo = formData.get("photo");
   if (!(photo instanceof File) || photo.size === 0) return { erreur: "Aucune photo reçue." };

@@ -22,7 +22,7 @@ export default async function NouvellePromotionPage({ searchParams }: PageProps<
 
   return (
     <div className="space-y-6 md:space-y-8">
-      <EnTete retour={{ href: "/admin/promotions", label: "Promotions" }} surtitre="Catalogue" titre="Nouvelle promotion" />
+      <EnTete centre retour={{ href: "/admin/promotions", label: "Promotions" }} surtitre="Catalogue" titre="Nouvelle promotion" />
       {libres.length === 0 ? (
         <p className="rounded-2xl border border-dashed border-filet px-5 py-10 text-center text-sm text-douce">
           {articles.length === 0 ? (

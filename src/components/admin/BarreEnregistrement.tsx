@@ -3,10 +3,12 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 import type { EtatFormulaire } from "@/lib/actions/formulaires";
+import { useConfirmationEnregistrement } from "./Confirmation";
 
 /**
- * Barre collée en bas des formulaires : réponse du serveur, retour à la liste et bouton d'enregistrement.
- * Quand la fiche a changé ailleurs entre-temps, elle propose de recharger la page.
+ * Barre flottante en bas des formulaires, de la largeur des cartes : erreur éventuelle, retour à la liste
+ * et bouton d'enregistrement. Quand la fiche a changé ailleurs entre-temps, elle propose de recharger la page.
+ * Un enregistrement réussi s'annonce dans la fenêtre « Succès ».
  */
 export function BarreEnregistrement({
   etat,
@@ -24,9 +26,11 @@ export function BarreEnregistrement({
   /** Texte du bouton d'enregistrement. */
   children: ReactNode;
 }) {
+  useConfirmationEnregistrement(etat);
+
   return (
-    <div className="sticky bottom-0 z-10 -mx-4 border-t border-filet bg-ivoire/95 px-4 py-3 backdrop-blur-md md:-mx-8 md:px-8">
-      <div className="mx-auto flex max-w-3xl flex-wrap items-center justify-end gap-x-3 gap-y-2">
+    <div className="sticky bottom-3 z-10 rounded-2xl border border-filet bg-white/90 p-3 shadow-[0_16px_40px_-16px_rgb(21_11_17/0.35)] backdrop-blur-md md:bottom-5 md:px-5">
+      <div className="flex flex-wrap items-center justify-end gap-x-3 gap-y-2">
         {etat?.message && !enCours && (
           <p role="alert" className="w-full text-sm text-rubis sm:mr-auto sm:w-auto">
             {etat.message}
@@ -44,18 +48,14 @@ export function BarreEnregistrement({
             )}
           </p>
         )}
-        {etat?.ok && !enCours && (
-          <p role="status" className="w-full text-sm text-[#187a42] sm:mr-auto sm:w-auto">
-            {etat.ok}
-          </p>
-        )}
-        <Link href={retour} className="bouton bouton-contour flex-1 px-4 sm:flex-none sm:px-7">
+        {/* Sur téléphone, « Retour » reste compact pour que le bouton principal tienne sur une ligne. */}
+        <Link href={retour} className="bouton bouton-contour px-5 sm:px-7">
           Retour
         </Link>
         <button
           type="submit"
           disabled={enCours || bloque}
-          className="bouton bouton-nuit flex-[2] px-4 sm:flex-none sm:px-7"
+          className="bouton bouton-nuit flex-1 px-4 tracking-[0.14em] whitespace-nowrap sm:flex-none sm:px-7 sm:tracking-[0.2em]"
         >
           {children}
         </button>

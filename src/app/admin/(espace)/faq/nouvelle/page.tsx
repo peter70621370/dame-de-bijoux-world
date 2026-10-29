@@ -22,7 +22,7 @@ export default async function NouvelleQuestionPage({ searchParams }: PageProps<"
 
   return (
     <div className="space-y-6 md:space-y-8">
-      <EnTete retour={{ href: "/admin/faq", label: "FAQ" }} surtitre="FAQ" titre="Nouvelle question" />
+      <EnTete centre retour={{ href: "/admin/faq", label: "FAQ" }} surtitre="FAQ" titre="Nouvelle question" />
       <NouvelleVisite>
         <FormulaireQuestion
           nouvelle

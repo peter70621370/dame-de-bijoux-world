@@ -24,6 +24,7 @@ export default async function ArticlePage({ params }: PageProps<"/admin/articles
   return (
     <div className="space-y-6 md:space-y-8">
       <EnTete
+        centre
         retour={{ href: "/admin/articles", label: "Articles" }}
         surtitre={visible ? "En ligne" : "Masqué du site"}
         titre={produit.name}
@@ -81,7 +82,7 @@ export default async function ArticlePage({ params }: PageProps<"/admin/articles
               : produit.images.length === 1
                 ? " et sa photo seront effacés"
                 : " sera effacé"
-          } du site et du back-office. C’est définitif : pour le retirer seulement un temps, décochez plutôt « En ligne ».`}
+          } du site et de l’espace admin. C’est définitif : pour le retirer seulement un temps, décochez plutôt « En ligne ».`}
         />
       </section>
     </div>

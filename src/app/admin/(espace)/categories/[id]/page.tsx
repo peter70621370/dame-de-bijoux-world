@@ -23,6 +23,7 @@ export default async function CategoriePage({ params }: PageProps<"/admin/catego
   return (
     <div className="space-y-6 md:space-y-8">
       <EnTete
+        centre
         retour={{ href: "/admin/categories", label: "Catégories" }}
         surtitre={categorie.onRequest ? "Sur demande" : "Catégorie"}
         titre={categorie.label}

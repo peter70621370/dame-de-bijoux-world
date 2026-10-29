@@ -66,7 +66,7 @@ export function Header({ actualites }: { actualites: boolean }) {
             : "border-transparent bg-ivoire"
         }`}
       >
-        <div className="conteneur flex h-16 items-center justify-between gap-6 md:h-20">
+        <div className="conteneur flex h-16 items-center justify-between gap-4 md:h-20 xl:gap-6">
           <button
             type="button"
             onClick={() => setMenuOpen(true)}
@@ -82,7 +82,7 @@ export function Header({ actualites }: { actualites: boolean }) {
             <Logo />
           </div>
 
-          <nav aria-label="Navigation principale" className="hidden items-center gap-4 lg:flex xl:gap-7">
+          <nav aria-label="Navigation principale" className="hidden items-center gap-3.5 lg:flex xl:gap-7">
             {nav.map((item) => (
               <Link
                 key={item.href}
@@ -95,10 +95,19 @@ export function Header({ actualites }: { actualites: boolean }) {
             ))}
           </nav>
 
-          <div className="flex items-center gap-1 md:gap-3">
+          <div className="flex items-center gap-1 md:gap-2 min-[75rem]:gap-3">
+            {/* Numéro en entier dès qu'il tient à côté du menu ; avant, une icône (sur téléphone : « Appeler » dans le menu). */}
             <a
               href={boutique.lienTelephone}
-              className="eyebrow hidden items-center gap-2 px-2 py-2 font-times text-[0.75rem] tracking-[0.16em] whitespace-nowrap hover:text-or-fonce xl:flex"
+              aria-label={`Appeler le ${boutique.phone}`}
+              title={boutique.phone}
+              className="hidden size-10 place-items-center rounded-full border border-filet hover:border-or-fonce hover:text-or-fonce md:grid min-[75rem]:hidden"
+            >
+              <IconPhone width={16} height={16} />
+            </a>
+            <a
+              href={boutique.lienTelephone}
+              className="eyebrow hidden items-center gap-2 px-2 py-2 font-times text-[0.75rem] tracking-[0.16em] whitespace-nowrap hover:text-or-fonce min-[75rem]:flex"
             >
               <IconPhone width={16} height={16} />
               {boutique.phone}

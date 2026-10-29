@@ -10,12 +10,19 @@ datasource db {
   provider = "postgresql"
 }
 
+/// Administrateur : tout l'espace admin. Utilisateur : catalogue et annonces, sans les pages du site ni les comptes.
+enum Role {
+  ADMIN
+  UTILISATEUR
+}
+
 /// Comptes du back-office (/admin).
 model AdminUser {
   id             String    @id @default(cuid())
   name           String
   email          String    @unique
   passwordHash   String
+  role           Role      @default(UTILISATEUR)
   /// Incrémenté à chaque changement de mot de passe : les sessions ouvertes avant deviennent invalides.
   sessionVersion Int       @default(0)
   /// Tentatives de connexion ratées d'affilée ; le compte se bloque un moment au-delà de la limite.

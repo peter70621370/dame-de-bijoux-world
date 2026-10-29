@@ -16,7 +16,7 @@ export default async function NouvelleActualitePage() {
 
   return (
     <div className="space-y-6 md:space-y-8">
-      <EnTete retour={{ href: "/admin/actualites", label: "Actualités" }} surtitre="Annonces" titre="Nouvelle actualité" />
+      <EnTete centre retour={{ href: "/admin/actualites", label: "Actualités" }} surtitre="Annonces" titre="Nouvelle actualité" />
       <NouvelleVisite>
         <FormulaireActualite
           nouvelle

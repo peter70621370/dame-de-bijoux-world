@@ -4,7 +4,7 @@ import bcrypt from "bcryptjs";
 import { refresh } from "next/cache";
 import { redirect, RedirectType } from "next/navigation";
 import { z } from "zod";
-import { verifySession } from "@/lib/dal";
+import { verifyAdmin, verifySession } from "@/lib/dal";
 import { prisma } from "@/lib/prisma";
 import { createSession } from "@/lib/session";
 import { erreursParChamp, type EtatFormulaire } from "./formulaires";
@@ -23,6 +23,8 @@ const motDePasse = z
   // bcrypt ne lit que les 72 premiers octets : au-delà (accents nombreux), la fin serait ignorée.
   .refine((m) => new TextEncoder().encode(m).length <= 72, "Trop de caractères accentués : raccourcissez-le.");
 
+const role = z.enum(["ADMIN", "UTILISATEUR"], "Choisissez un rôle.");
+
 const VERIFIEZ = "Vérifiez les champs signalés en rouge.";
 
 const lire = (formData: FormData, cle: string) => String(formData.get(cle) ?? "");
@@ -35,13 +37,16 @@ async function adresseDejaPrise(adresse: string, sauf?: string) {
   return Boolean(autre);
 }
 
-/** Ajoute un compte au back-office. */
+/** Ajoute un compte au back-office (administrateurs seulement). */
 export async function creerCompte(_etat: EtatFormulaire, formData: FormData): Promise<EtatFormulaire> {
-  await verifySession();
+  await verifyAdmin();
 
-  const resultat = z
-    .object({ name: nom, email, password: motDePasse })
-    .safeParse({ name: lire(formData, "name"), email: lire(formData, "email"), password: lire(formData, "password") });
+  const resultat = z.object({ name: nom, email, password: motDePasse, role }).safeParse({
+    name: lire(formData, "name"),
+    email: lire(formData, "email"),
+    password: lire(formData, "password"),
+    role: lire(formData, "role"),
+  });
   if (!resultat.success) return { message: VERIFIEZ, erreurs: erreursParChamp(resultat.error.issues) };
   const c = resultat.data;
 
@@ -49,7 +54,7 @@ export async function creerCompte(_etat: EtatFormulaire, formData: FormData): Pr
     return { message: VERIFIEZ, erreurs: { email: "Un compte utilise déjà cette adresse." } };
   }
   const compte = await prisma.adminUser.create({
-    data: { name: c.name, email: c.email, passwordHash: await bcrypt.hash(c.password, 12) },
+    data: { name: c.name, email: c.email, role: c.role, passwordHash: await bcrypt.hash(c.password, 12) },
   });
   redirect(`/admin/comptes?ajout=${compte.id}`, RedirectType.replace);
 }
@@ -113,7 +118,7 @@ export async function reinitialiserMotDePasse(
   _etat: EtatFormulaire,
   formData: FormData,
 ): Promise<EtatFormulaire> {
-  const admin = await verifySession();
+  const admin = await verifyAdmin();
   if (id === admin.id) return { message: "Pour votre propre compte, utilisez « Changer mon mot de passe »." };
 
   const resultat = z
@@ -140,9 +145,34 @@ export async function reinitialiserMotDePasse(
   return { ok: `Nouveau mot de passe enregistré : transmettez-le à ${compte.name} de vive voix.` };
 }
 
+/**
+ * Change le rôle d'un autre compte, effectif dès sa prochaine page. Le sien ne se change pas : il resterait
+ * toujours au moins l'administrateur qui fait la modification.
+ */
+export async function changerRole(id: string, _etat: EtatFormulaire, formData: FormData): Promise<EtatFormulaire> {
+  const admin = await verifyAdmin();
+  if (id === admin.id) return { message: "Votre propre rôle ne peut pas être changé." };
+
+  const resultat = role.safeParse(lire(formData, "role"));
+  if (!resultat.success) return { message: VERIFIEZ, erreurs: { role: "Choisissez un rôle." } };
+
+  const compte = await prisma.adminUser
+    .update({ where: { id }, data: { role: resultat.data }, select: { name: true } })
+    .catch(() => null);
+  if (!compte) return { message: "Ce compte n’existe plus : il a peut-être été supprimé entre-temps." };
+
+  refresh();
+  return {
+    ok:
+      resultat.data === "ADMIN"
+        ? `${compte.name} a maintenant accès à tout l’espace admin.`
+        : `${compte.name} gère désormais le catalogue et les annonces seulement.`,
+  };
+}
+
 /** Supprime un autre compte ; on ne peut supprimer ni le sien, ni le dernier. */
 export async function supprimerCompte(id: string) {
-  const admin = await verifySession();
+  const admin = await verifyAdmin();
   if (id === admin.id || (await prisma.adminUser.count()) <= 1) redirect(`/admin/comptes/${id}`, RedirectType.replace);
 
   await prisma.adminUser.deleteMany({ where: { id } });

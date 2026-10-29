@@ -23,6 +23,7 @@ export default async function QuestionPage({ params }: PageProps<"/admin/faq/[id
   return (
     <div className="space-y-6 md:space-y-8">
       <EnTete
+        centre
         retour={{ href: "/admin/faq", label: "FAQ" }}
         surtitre={rubriques.find((r) => r.id === question.sectionId)?.title ?? "FAQ"}
         titre={question.question}

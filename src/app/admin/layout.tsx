@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: { default: "Back-office", template: "%s · Back-office Dame de Bijoux" },
+  title: { default: "Espace admin", template: "%s · Espace admin Dame de Bijoux" },
   robots: { index: false, follow: false },
 };
 

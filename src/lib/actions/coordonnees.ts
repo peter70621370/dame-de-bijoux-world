@@ -3,7 +3,7 @@
 import { refresh, updateTag } from "next/cache";
 import { z } from "zod";
 import { chiffresTelephone, compteTikTok, formaterTelephone } from "@/lib/boutique";
-import { verifySession } from "@/lib/dal";
+import { verifyAdmin } from "@/lib/dal";
 import { BOUTIQUE_TAG } from "@/lib/data/boutique";
 import { prisma } from "@/lib/prisma";
 import { erreursParChamp, type EtatFormulaire } from "./formulaires";
@@ -49,7 +49,7 @@ const schema = z.object({
 
 /** Enregistre les coordonnées : une seule fiche, créée au premier enregistrement. */
 export async function enregistrerCoordonnees(_etat: EtatFormulaire, formData: FormData): Promise<EtatFormulaire> {
-  await verifySession();
+  await verifyAdmin();
 
   const champ = (cle: string) => String(formData.get(cle) ?? "");
   const resultat = schema.safeParse({

@@ -16,6 +16,7 @@ export default async function AccueilPage() {
   return (
     <div className="space-y-6 md:space-y-8">
       <EnTete
+        centre
         surtitre="Site"
         titre="Page d’accueil"
         description="Titre, photos et bloc « Vente en gros »."

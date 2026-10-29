@@ -5,7 +5,7 @@ import { startTransition, useEffect, useId, useRef, useState, type FormEvent } f
 import { Plus, Trash2 } from "lucide-react";
 import { BarreEnregistrement } from "@/components/admin/BarreEnregistrement";
 import { ChampPhotos, type Photo } from "@/components/admin/ChampPhotos";
-import { Carte, Champ, Interrupteur, propsErreur, styleChamp } from "@/components/admin/ui";
+import { Carte, Champ, Interrupteur, ligneChamps, propsErreur, styleChamp } from "@/components/admin/ui";
 import { useEnregistrement } from "@/components/admin/useEnregistrement";
 import type { EtatFormulaire } from "@/lib/actions/formulaires";
 import { discountPercent, formatPrice, formatPromoEnd } from "@/lib/products";
@@ -121,7 +121,7 @@ export function FormulaireArticle({
             {...propsErreur(ident("name"), e.name)}
           />
         </Champ>
-        <div className="grid gap-5 sm:grid-cols-2">
+        <div className={ligneChamps}>
           <Champ id={ident("categoryId")} label="Catégorie" erreur={e.categoryId}>
             <select
               id={ident("categoryId")}
@@ -212,7 +212,7 @@ export function FormulaireArticle({
         titre="Promotion"
         description="Le prix promo remplace le prix sur le site, l’ancien prix barré, avec un badge « Promo ». Laissez vide sans promotion."
       >
-        <div className="grid gap-5 sm:grid-cols-2">
+        <div className={ligneChamps}>
           <Champ id={ident("promoPrice")} label="Prix promo (FCFA)" erreur={e.promoPrice}>
             <input
               id={ident("promoPrice")}
@@ -267,7 +267,7 @@ export function FormulaireArticle({
         titre="Choix proposé au client"
         description="Facultatif : par exemple « Coloris » avec Doré, Argenté… Chaque valeur peut montrer sa propre photo."
       >
-        <div className="grid gap-5 sm:grid-cols-2">
+        <div className={ligneChamps}>
           <Champ id={ident("optionName")} label="Nom du choix" aide="Coloris, Finition, Taille…" erreur={e.optionName}>
             <input
               id={ident("optionName")}

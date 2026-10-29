@@ -42,7 +42,8 @@ export default async function AnnoncesPage() {
         titre="Bandeau & fenêtre"
         description="Pour prévenir les visiteurs d’un arrivage, d’une promotion ou d’une fermeture exceptionnelle."
       />
-      <div className="grid items-start gap-5 lg:grid-cols-2">
+      {/* Cartes de même hauteur, boutons alignés en bas. */}
+      <div className="grid gap-5 lg:grid-cols-2">
         <CarteAnnonce type="bandeau" annonce={bandeau} />
         <CarteAnnonce type="fenetre" annonce={fenetre} />
       </div>
@@ -58,7 +59,7 @@ function CarteAnnonce({ type, annonce }: { type: TypeAnnonce; annonce: Annonce |
   const etat = redigee && etatAnnonce(redigee);
 
   return (
-    <section className="overflow-hidden rounded-2xl border border-filet bg-white">
+    <section className="flex flex-col overflow-hidden rounded-2xl border border-filet bg-white">
       <div className="flex items-start gap-3 p-5 md:gap-4 md:p-6">
         <span className="hidden size-11 shrink-0 place-items-center rounded-xl bg-sable text-or-fonce sm:grid">
           <Icone size={20} aria-hidden />
@@ -109,7 +110,7 @@ function CarteAnnonce({ type, annonce }: { type: TypeAnnonce; annonce: Annonce |
         </div>
       )}
 
-      <div className="flex flex-wrap gap-2 border-t border-filet p-4 md:px-6">
+      <div className="mt-auto flex flex-wrap gap-2 border-t border-filet p-4 md:px-6">
         {/* Largeur naturelle : sur téléphone, le second bouton passe à la ligne plutôt que de couper son texte. */}
         <Link href={`/admin/annonces/${type}`} className="bouton bouton-nuit flex-auto sm:flex-none">
           <Pencil size={16} aria-hidden /> {redigee ? "Modifier" : "Rédiger"}

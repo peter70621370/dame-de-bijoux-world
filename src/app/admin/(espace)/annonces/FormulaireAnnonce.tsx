@@ -6,7 +6,7 @@ import { ContenuFenetre } from "@/components/FenetreAnnonce";
 import { BarreEnregistrement } from "@/components/admin/BarreEnregistrement";
 import { ChampLien } from "@/components/admin/ChampLien";
 import { ChampPhotos } from "@/components/admin/ChampPhotos";
-import { Carte, Champ, Interrupteur, propsErreur, styleChamp } from "@/components/admin/ui";
+import { Carte, Champ, Interrupteur, ligneChamps, propsErreur, styleChamp } from "@/components/admin/ui";
 import { useEnregistrement } from "@/components/admin/useEnregistrement";
 import type { EtatFormulaire } from "@/lib/actions/formulaires";
 import { TONS_BANDEAU, type GroupeDestinations, type Lien, type TonBandeau, type TypeAnnonce } from "@/lib/annonces";
@@ -220,7 +220,7 @@ export function FormulaireAnnonce({
           }
           defaultChecked={annonce.enabled}
         />
-        <div className="grid gap-5 sm:grid-cols-2">
+        <div className={ligneChamps}>
           <Champ
             id={ident("startsAt")}
             label="Premier jour (facultatif)"
