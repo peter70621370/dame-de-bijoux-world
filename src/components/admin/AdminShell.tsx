@@ -8,7 +8,6 @@ import {
   CircleQuestionMark,
   ExternalLink,
   Gem,
-  House,
   LayoutDashboard,
   Megaphone,
   Menu,
@@ -52,7 +51,9 @@ const SECTIONS: { titre?: string; admin?: true; liens: Lien[] }[] = [
     titre: "Site",
     admin: true,
     liens: [
-      { href: "/admin/accueil", label: "Page d’accueil", icon: House, pret: true },
+      // Masquée du menu pour le moment (demande du 2026-10-30) ; la page /admin/accueil reste en place.
+      // Pour la remettre : réimporter House de lucide-react et décommenter.
+      // { href: "/admin/accueil", label: "Page d’accueil", icon: House, pret: true },
       { href: "/admin/faq", label: "FAQ", icon: CircleQuestionMark, pret: true },
       { href: "/admin/coordonnees", label: "Coordonnées", icon: Store, pret: true },
     ],
