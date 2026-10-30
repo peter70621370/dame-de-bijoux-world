@@ -13,7 +13,7 @@ import { IconBag, IconClose, IconMenu, IconPhone, IconTikTok, IconWhatsApp } fro
 export function Logo({ light = false }: { light?: boolean }) {
   return (
     <Link href="/" aria-label={`Accueil — ${site.name}`} className="group flex items-center gap-2.5 leading-none md:gap-3">
-      <LogoEmbleme className={`h-10 w-auto shrink-0 md:h-12 ${light ? "text-or" : "text-encre"}`} />
+      <LogoEmbleme className="size-11 shrink-0 md:size-13" />
       <span className="block">
         <span className="block whitespace-nowrap font-serif text-[0.98rem] font-semibold uppercase tracking-[0.12em] min-[400px]:text-[1.08rem] md:text-[1.3rem] xl:text-[1.4rem]">
           Dame de Bijoux

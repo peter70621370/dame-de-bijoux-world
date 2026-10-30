@@ -34,11 +34,11 @@ export default function MaisonPage() {
       <section className="conteneur grid gap-12 py-20 md:py-28 lg:grid-cols-12 lg:items-center">
         <Reveal className="relative aspect-square overflow-hidden rounded-2xl bg-nuit lg:col-span-5">
           <Image
-            src="/marque/logo-dame-de-bijoux.svg"
-            alt="Logo Dame de Bijoux World : monogramme DB couronné, cœur rubis"
+            src="/marque/logo-dame-de-bijoux.webp"
+            alt="Logo Dame de Bijoux World : monogramme DB et profil de femme dorés"
             fill
             sizes="(min-width:1024px) 40vw, 100vw"
-            className="object-contain p-8 md:p-12"
+            className="object-cover"
           />
         </Reveal>
         <Reveal delay={120} className="space-y-6 text-lg leading-relaxed text-douce lg:col-span-6 lg:col-start-7">

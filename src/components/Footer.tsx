@@ -17,7 +17,7 @@ export async function Footer() {
     <footer className="grain relative overflow-hidden bg-nuit text-ivoire/80">
       <div className="conteneur relative grid grid-cols-2 gap-x-6 gap-y-12 py-16 md:grid-cols-12 md:gap-12 md:py-24">
         <div className="col-span-2 md:col-span-4">
-          <LogoEmbleme className="mb-5 h-16 w-auto text-or" />
+          <LogoEmbleme className="mb-5 size-20" />
           <p className="font-serif text-3xl font-semibold uppercase tracking-[0.12em] text-ivoire">Dame de Bijoux</p>
           <p className="eyebrow mt-2 text-or-clair">World · {site.signature}</p>
           <p className="mt-6 max-w-xs text-sm leading-relaxed">

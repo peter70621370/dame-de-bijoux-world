@@ -32,7 +32,7 @@ export async function ContactCards() {
     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-12 lg:gap-5">
       <Reveal className="grain relative isolate flex flex-col overflow-hidden rounded-2xl bg-nuit p-6 text-ivoire md:col-span-2 md:p-12 lg:col-span-7 lg:row-span-2">
         <div className="halo absolute inset-0 -z-10" aria-hidden />
-        <LogoEmbleme className="pointer-events-none absolute -right-12 -bottom-20 -z-10 h-60 w-auto text-or opacity-[0.07] md:h-80" />
+        <LogoEmbleme className="pointer-events-none absolute -right-12 -bottom-20 -z-10 size-60 opacity-15 mix-blend-lighten md:size-80" />
         <p className="eyebrow flex items-center gap-4 text-or-clair">
           <span className="grid size-11 shrink-0 place-items-center rounded-full bg-[#1f8f4e] text-white">
             <IconWhatsApp width={20} height={20} />

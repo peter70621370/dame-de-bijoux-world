@@ -121,7 +121,7 @@ export function AdminShell({ nom, compte, role, children }: Session & { children
             <Menu size={22} aria-hidden />
           </button>
           <Link href="/admin" className="flex items-center gap-2.5">
-            <LogoEmbleme className="h-7 w-auto text-or-fonce" />
+            <LogoEmbleme className="size-8" />
             <span className="font-serif text-xl leading-none">Espace admin</span>
           </Link>
         </div>
@@ -166,7 +166,7 @@ function Navigation({
     // Logo en haut et compte en bas restent en place ; seules les rubriques défilent sur un écran bas.
     <nav aria-label="Espace admin" className="flex h-full flex-col px-4 pt-6 pb-4">
       <Link href="/admin" onClick={onNavigate} className="flex shrink-0 items-center gap-3 px-2">
-        <LogoEmbleme className="h-10 w-auto text-or" />
+        <LogoEmbleme className="size-11" />
         <span className="min-w-0 leading-tight whitespace-nowrap">
           <span className="block font-serif text-lg font-semibold uppercase tracking-[0.08em]">Dame de Bijoux</span>
           <span className="eyebrow mt-0.5 block min-h-[1.2em] truncate text-[0.6rem] text-or-clair">{nom}</span>

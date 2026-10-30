@@ -37,7 +37,7 @@ export default async function OpengraphImage() {
           }}
         >
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={logo} alt="" width={96} height={102} style={{ marginBottom: 30 }} />
+          <img src={logo} alt="" width={120} height={120} style={{ marginBottom: 30 }} />
           <div style={{ fontSize: 22, letterSpacing: 8, color: "#e6cb94", textTransform: "uppercase" }}>
             Gros… petit prix · Lomé
           </div>

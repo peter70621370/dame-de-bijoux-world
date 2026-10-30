@@ -1,32 +1,10 @@
-import { useId, type SVGProps } from "react";
+import type { ImgHTMLAttributes } from "react";
 
-// Emblème du logo (couronne, monogramme DB, cœur rubis), mêmes tracés que les fichiers de docs/logo/final.
-// La couleur suit `currentColor` ; le cœur garde ses teintes rubis.
-const D = "M77 282.2Q68.9 282.2 57 281.5Q45 280.7 35 280.7Q25.9 280.7 17.5 280.9Q9.2 281.2 2.5 281.2Q2 281.2 2 279.6Q2 278.1 2.5 278.1Q11 278.1 15.4 276.8Q19.8 275.5 21.3 271.6Q22.7 267.7 22.7 260.1V139.8Q22.7 132.2 21.3 128.4Q19.8 124.7 15.6 123.2Q11.4 121.8 3 121.8Q2.3 121.8 2.3 120.3Q2.3 118.7 3 118.7Q9.6 118.7 17.7 119.1Q25.9 119.5 35 119.5Q44.2 119.5 54.9 118.8Q65.7 118.2 73.3 118.2Q100.6 118.2 120.8 128.6Q141.1 139 152.4 156.9Q163.6 174.9 163.6 197.2Q163.6 216.7 156.8 232.4Q150 248.2 137.9 259.2Q125.9 270.3 110.2 276.3Q94.5 282.2 77 282.2ZM74.4 277Q92.4 277 106.2 268.5Q120 259.9 127.9 243.3Q135.8 226.7 135.8 202.9Q135.8 180.6 128.4 162.6Q121.1 144.5 107.7 133.9Q94.3 123.3 75.9 123.3Q60.5 123.3 54 126.2Q47.4 129.2 47.4 140.3V257.3Q47.4 267.3 52.5 272.2Q57.7 277 74.4 277Z";
-const B = "M198.1 193.5 200.9 189.4Q218 189.4 230.6 195.1Q243.2 200.9 250.2 210.8Q257.1 220.8 257.1 233.9Q257.1 247.5 249.7 258.5Q242.2 269.5 229.2 275.9Q216.2 282.2 199.9 282.2Q192.5 282.2 181.8 281.5Q171.1 280.7 162.2 280.7Q153.1 280.7 144.9 280.9Q136.6 281.2 130 281.2Q129.3 281.2 129.3 279.6Q129.3 278.1 130 278.1Q138 278.1 142.3 276.8Q146.6 275.5 148.3 271.6Q150 267.7 150 260.1V139.8Q150 132.2 148.4 128.4Q146.9 124.7 142.6 123.2Q138.3 121.8 130.3 121.8Q129.7 121.8 129.7 120.3Q129.7 118.7 130.3 118.7Q136.8 118.7 145 119.1Q153.1 119.5 162.2 119.5Q169.5 119.5 177.8 118.7Q186.1 117.9 193.7 117.9Q209.3 117.9 219.8 122Q230.4 126 235.9 133.5Q241.3 141.1 241.3 151.7Q241.3 166.2 230.1 177.6Q219 188.9 198.1 193.5ZM189.3 123Q184 123 180.7 124.4Q177.5 125.8 176.2 129.4Q174.9 133 174.9 140.3V191.2L165.8 189.3Q174.3 189.7 179.7 189.8Q185.2 189.9 185.8 189.9Q201.9 189.9 209.4 179.5Q216.9 169 216.9 153.9Q216.9 144.3 213.9 137.4Q210.8 130.4 204.7 126.7Q198.6 123 189.3 123ZM195.7 276.4Q214.2 276.4 222.5 266.9Q230.9 257.4 230.9 240.2Q230.9 220.9 220.9 208.7Q211 196.5 190.5 196.4Q186.7 196.3 180.2 196.5Q173.7 196.6 166.7 197.9L174.9 194.8V260.1Q174.9 265.7 176.3 269.4Q177.7 273 182.2 274.7Q186.7 276.4 195.7 276.4Z";
-
-export function LogoEmbleme(props: SVGProps<SVGSVGElement>) {
-  // Le B passe devant le D : un masque creuse un liseré autour du B.
-  const masque = `ddb-${useId().replace(/[^\w-]/g, "")}`;
+// Logo de la boutique en pastille ronde (fond noir, or), tiré de docs/logo/client/logo-client-1080.png.
+// La taille vient de la classe (`h-10 w-auto`…) ; l'image fait 256 px, assez pour 128 px affichés en écran Retina.
+export function LogoEmbleme(props: ImgHTMLAttributes<HTMLImageElement>) {
   return (
-    <svg viewBox="0 0 259.1 284.2" fill="currentColor" aria-hidden {...props}>
-      <defs>
-        <mask id={masque} maskUnits="userSpaceOnUse" x="0" y="0" width="259.1" height="284.2">
-          <rect width="259.1" height="284.2" fill="#fff" />
-          <path d={B} fill="#000" stroke="#000" strokeWidth={18.2} strokeLinejoin="round" />
-        </mask>
-      </defs>
-      <path d="M65 83.5L51.4 39.3L73.5 61.4L90.5 27.4L110.9 54.6L129.6 12.1L148.3 54.6L168.7 27.4L185.7 61.4L207.8 39.3L194.2 83.5ZM65 90.3L194.2 90.3L194.2 103.9L65 103.9Z" />
-      <circle cx="51.4" cy="32.5" r="6.1" />
-      <circle cx="90.5" cy="20.6" r="6.1" />
-      <circle cx="129.6" cy="5.3" r="6.1" />
-      <circle cx="168.7" cy="20.6" r="6.1" />
-      <circle cx="207.8" cy="32.5" r="6.1" />
-      <path d={D} mask={`url(#${masque})`} />
-      <path d={B} />
-      <path d="M92.1 222C77.6 211.5 68 201.9 68 191.3C68 182.6 74.8 177.8 81.5 177.8C87.2 177.8 90.6 181.2 92.1 185.5C93.5 181.2 96.9 177.8 102.6 177.8C109.3 177.8 116.1 182.6 116.1 191.3C116.1 201.9 106.5 211.5 92.1 222Z" fill="#b3345e" />
-      <path d="M92.1 192.3L101.7 186.5L107.4 192.3L92.1 211.5L76.7 192.3L82.4 186.5Z" fill="#e07a9c" opacity={.55} />
-      <path d="M82.4 186.5L87.2 181.7L92.1 192.3Z" fill="#fff" opacity={.35} />
-    </svg>
+    // eslint-disable-next-line @next/next/no-img-element
+    <img src="/marque/logo-rond.webp" alt="" width={256} height={256} decoding="async" {...props} />
   );
 }

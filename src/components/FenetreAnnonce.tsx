@@ -106,7 +106,7 @@ export function ContenuFenetre({
       </button>
 
       <div className="px-6 pt-7 pb-6 text-center sm:px-8">
-        {!image && <LogoEmbleme className="mx-auto mb-5 h-12 w-auto text-or-fonce" />}
+        {!image && <LogoEmbleme className="mx-auto mb-5 size-16" />}
         <h2 id={titreId} className="titre text-[2rem] break-words">
           {titre}
         </h2>

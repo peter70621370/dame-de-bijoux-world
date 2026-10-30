@@ -38,7 +38,7 @@ export function CarteActualite({
           />
         ) : (
           <div className="grain halo absolute inset-0 grid place-items-center">
-            <LogoEmbleme className="h-20 w-auto text-or" />
+            <LogoEmbleme className="size-24" />
           </div>
         )}
       </div>
