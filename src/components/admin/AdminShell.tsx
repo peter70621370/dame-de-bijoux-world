@@ -21,7 +21,7 @@ import {
 } from "lucide-react";
 import { LogoEmbleme } from "@/components/LogoEmbleme";
 import { ConfirmationProvider } from "@/components/admin/Confirmation";
-import { ReglageMenu } from "@/components/admin/ReglageMenu";
+import { BoutonReduire, ReglageMenu } from "@/components/admin/ReglageMenu";
 import type { Role } from "@/generated/prisma/enums";
 
 /** `role` : celui du compte connecté, lu par le serveur ; null tant qu'il n'est pas connu ou s'il n'y a plus de session. */
@@ -90,7 +90,7 @@ export function AdminShell({ nom, compte, role, children }: Session & { children
       </a>
 
       <aside className="fixed inset-y-0 left-0 z-40 hidden w-(--menu-admin-largeur) bg-nuit text-ivoire transition-[width] duration-300 menu-glisse:transition-none lg:block">
-        <Rubriques nom={nom} compte={compte} role={role} />
+        <Rubriques nom={nom} compte={compte} role={role} reductible />
         <ReglageMenu />
       </aside>
 
@@ -141,7 +141,8 @@ export function AdminShell({ nom, compte, role, children }: Session & { children
  * qu'à la visite, et le rôle qu'après lecture de la session : le menu s'affiche d'abord sans surlignage ni rubriques
  * d'administrateur, qui arrivent aussitôt après.
  */
-function Rubriques({ role, ...props }: Session & { onNavigate?: () => void }) {
+/** `reductible` : menu fixe de l'ordinateur, avec le bouton pour le réduire (pas dans le tiroir du téléphone). */
+function Rubriques({ role, ...props }: Session & { onNavigate?: () => void; reductible?: boolean }) {
   return (
     <Suspense fallback={<Navigation pathname={null} admin={false} {...props} />}>
       <NavigationActive role={role} {...props} />
@@ -149,7 +150,7 @@ function Rubriques({ role, ...props }: Session & { onNavigate?: () => void }) {
   );
 }
 
-function NavigationActive({ role, ...props }: Session & { onNavigate?: () => void }) {
+function NavigationActive({ role, ...props }: Session & { onNavigate?: () => void; reductible?: boolean }) {
   return <Navigation pathname={usePathname()} admin={use(role) === "ADMIN"} {...props} />;
 }
 
@@ -159,10 +160,12 @@ function Navigation({
   nom,
   compte,
   onNavigate,
+  reductible = false,
 }: Omit<Session, "role"> & {
   pathname: string | null;
   admin: boolean;
   onNavigate?: () => void;
+  reductible?: boolean;
 }) {
   return (
     // Logo en haut et compte en bas restent en place ; seules les rubriques défilent sur un écran bas.
@@ -223,16 +226,19 @@ function Navigation({
       </div>
 
       <div className="shrink-0 space-y-2 border-t border-white/10 pt-2">
-        <a
-          href="/"
-          target="_blank"
-          rel="noopener noreferrer"
-          title="Voir le site"
-          className="flex h-10 items-center gap-3 rounded-xl px-3 text-sm text-ivoire/75 transition-colors hover:bg-white/5 hover:text-ivoire menu-reduit:justify-center menu-reduit:px-0"
-        >
-          <ExternalLink size={18} aria-hidden className="shrink-0" />
-          <span className="truncate menu-reduit:sr-only">Voir le site</span>
-        </a>
+        <div className="space-y-0.5">
+          <a
+            href="/"
+            target="_blank"
+            rel="noopener noreferrer"
+            title="Voir le site"
+            className="flex h-10 items-center gap-3 rounded-xl px-3 text-sm text-ivoire/75 transition-colors hover:bg-white/5 hover:text-ivoire menu-reduit:justify-center menu-reduit:px-0"
+          >
+            <ExternalLink size={18} aria-hidden className="shrink-0" />
+            <span className="truncate menu-reduit:sr-only">Voir le site</span>
+          </a>
+          {reductible && <BoutonReduire />}
+        </div>
         {/* Le lien « Mon compte » vient du serveur : le tiroir se ferme au clic comme pour les rubriques. */}
         <div onClick={(e) => (e.target as HTMLElement).closest("a") && onNavigate?.()}>{compte}</div>
       </div>

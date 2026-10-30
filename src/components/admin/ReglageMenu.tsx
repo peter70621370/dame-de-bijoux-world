@@ -1,9 +1,9 @@
 "use client";
 
 import { useEffect, useMemo, useSyncExternalStore, type KeyboardEvent, type PointerEvent } from "react";
-import { ChevronsLeft, ChevronsRight } from "lucide-react";
+import { PanelLeftClose, PanelLeftOpen } from "lucide-react";
 
-// Réglage du menu latéral sur ordinateur : bouton pour le réduire à ses icônes, poignée au bord droit pour
+// Réglage du menu latéral sur ordinateur : bouton (en bas du menu) pour le réduire à ses icônes, poignée au bord droit pour
 // l'élargir ou le rétrécir (double-clic : largeur d'origine). Retenu dans ce navigateur.
 // La largeur passe par la variable CSS --menu-admin, l'état réduit par l'attribut data-menu-reduit de <html>
 // (voir globals.css) : appliqués par le script ci-dessous avant le premier affichage, sans saut du menu.
@@ -50,15 +50,38 @@ function regler(menu: Menu) {
   abonnes.forEach((rappel) => rappel());
 }
 
-export function ReglageMenu() {
+function useMenu() {
   const brut = useSyncExternalStore(abonner, lireBrut, () => "");
-  const menu = useMemo<Menu>(() => {
+  return useMemo<Menu>(() => {
     try {
       return JSON.parse(brut || "{}") ?? {};
     } catch {
       return {};
     }
   }, [brut]);
+}
+
+/** Bouton en bas du menu, sous la forme d'une rubrique : réduit le menu à ses icônes, ou le rouvre. */
+export function BoutonReduire() {
+  const menu = useMenu();
+  const libelle = menu.reduit ? "Agrandir le menu" : "Réduire le menu";
+  return (
+    <button
+      type="button"
+      onClick={() => regler({ ...menu, reduit: !menu.reduit })}
+      title={libelle}
+      className="flex h-10 w-full items-center gap-3 rounded-xl px-3 text-sm text-ivoire/75 transition-colors hover:bg-white/5 hover:text-ivoire menu-reduit:justify-center menu-reduit:px-0"
+    >
+      <PanelLeftClose size={18} aria-hidden className="shrink-0 menu-reduit:hidden" />
+      <PanelLeftOpen size={18} aria-hidden className="hidden shrink-0 menu-reduit:block" />
+      <span className="truncate menu-reduit:sr-only">{libelle}</span>
+    </button>
+  );
+}
+
+/** Script de démarrage et poignée de largeur, à placer dans le menu fixe. */
+export function ReglageMenu() {
+  const menu = useMenu();
 
   // Aussi quand le menu est monté sans rechargement (retour de la page de connexion) : le script n'a pas tourné.
   useEffect(() => appliquer(menu), [menu]);
@@ -87,16 +110,6 @@ export function ReglageMenu() {
   return (
     <>
       <script dangerouslySetInnerHTML={{ __html: SCRIPT }} />
-      <button
-        type="button"
-        onClick={() => regler({ ...menu, reduit: !menu.reduit })}
-        aria-label={menu.reduit ? "Agrandir le menu" : "Réduire le menu"}
-        title={menu.reduit ? "Agrandir le menu" : "Réduire le menu"}
-        className="absolute top-8 -right-3.5 z-10 grid size-7 place-items-center rounded-full border border-white/15 bg-nuit-2 text-ivoire/70 shadow-md transition-colors hover:border-or-clair/60 hover:text-or-clair"
-      >
-        <ChevronsLeft size={15} aria-hidden className="menu-reduit:hidden" />
-        <ChevronsRight size={15} aria-hidden className="hidden menu-reduit:block" />
-      </button>
       <div
         role="separator"
         aria-orientation="vertical"
