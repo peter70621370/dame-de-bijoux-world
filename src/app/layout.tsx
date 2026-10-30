@@ -54,7 +54,13 @@ export const viewport: Viewport = {
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     // data-scroll-behavior : défilement doux pour les ancres, mais pas pendant les changements de page.
-    <html lang="fr" data-scroll-behavior="smooth" className={`${cormorant.variable} ${jost.variable} antialiased`}>
+    // suppressHydrationWarning : le menu de l'espace admin pose sa largeur sur <html> avant React (voir ReglageMenu).
+    <html
+      lang="fr"
+      data-scroll-behavior="smooth"
+      className={`${cormorant.variable} ${jost.variable} antialiased`}
+      suppressHydrationWarning
+    >
       <body className="flex min-h-dvh flex-col">{children}</body>
     </html>
   );

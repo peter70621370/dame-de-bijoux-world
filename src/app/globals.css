@@ -1,5 +1,16 @@
 @import "tailwindcss";
 
+/* Menu latéral de l'espace admin (voir AdminShell) : largeur réglée à la souris, ou réduit à ses icônes.
+   `menu-reduit` ne vise que le menu fixe de l'ordinateur, pas le tiroir du téléphone. */
+@custom-variant menu-reduit (:where(html[data-menu-reduit]) aside &);
+@custom-variant menu-glisse (:where(html[data-menu-glisse]) &);
+html {
+  --menu-admin-largeur: var(--menu-admin, 17rem);
+}
+html[data-menu-reduit] {
+  --menu-admin-largeur: 4.75rem;
+}
+
 /*
   Charte Dame de Bijoux World — tirée du logo :
   nuit (noir prune), or (monogramme), rubis (cœur serti), ivoire (fond éditorial).

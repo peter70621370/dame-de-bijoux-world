@@ -21,6 +21,7 @@ import {
 } from "lucide-react";
 import { LogoEmbleme } from "@/components/LogoEmbleme";
 import { ConfirmationProvider } from "@/components/admin/Confirmation";
+import { ReglageMenu } from "@/components/admin/ReglageMenu";
 import type { Role } from "@/generated/prisma/enums";
 
 /** `role` : celui du compte connecté, lu par le serveur ; null tant qu'il n'est pas connu ou s'il n'y a plus de session. */
@@ -67,7 +68,7 @@ export function AdminShell({ nom, compte, role, children }: Session & { children
   const tiroir = useRef<HTMLDialogElement>(null);
 
   return (
-    <div className="flex min-h-dvh flex-1 flex-col bg-sable/50 lg:pl-68">
+    <div className="flex min-h-dvh flex-1 flex-col bg-sable/50 duration-300 menu-glisse:transition-none lg:pl-(--menu-admin-largeur) lg:transition-[padding]">
       {/* Menu collé en haut, barre « Enregistrer » collée en bas des formulaires : les débuts de page et les champs
           atteints au clavier ne passent pas dessous. Règle coupée quand Next.js masque le back-office (vers le site). */}
       <style
@@ -88,8 +89,9 @@ export function AdminShell({ nom, compte, role, children }: Session & { children
         Aller au contenu
       </a>
 
-      <aside className="fixed inset-y-0 left-0 hidden w-68 bg-nuit text-ivoire lg:block">
+      <aside className="fixed inset-y-0 left-0 z-40 hidden w-(--menu-admin-largeur) bg-nuit text-ivoire transition-[width] duration-300 menu-glisse:transition-none lg:block">
         <Rubriques nom={nom} compte={compte} role={role} />
+        <ReglageMenu />
       </aside>
 
       <dialog
@@ -164,10 +166,10 @@ function Navigation({
 }) {
   return (
     // Logo en haut et compte en bas restent en place ; seules les rubriques défilent sur un écran bas.
-    <nav aria-label="Espace admin" className="flex h-full flex-col px-4 pt-6 pb-4">
-      <Link href="/admin" onClick={onNavigate} className="flex shrink-0 items-center gap-3 px-2">
+    <nav aria-label="Espace admin" className="flex h-full flex-col overflow-hidden px-4 pt-6 pb-4">
+      <Link href="/admin" onClick={onNavigate} className="flex shrink-0 items-center gap-3 px-2 menu-reduit:px-0">
         <LogoEmbleme className="size-11" />
-        <span className="min-w-0 leading-tight whitespace-nowrap">
+        <span className="min-w-0 leading-tight whitespace-nowrap menu-reduit:hidden">
           <span className="block font-serif text-lg font-semibold uppercase tracking-[0.08em]">Dame de Bijoux</span>
           <span className="eyebrow mt-0.5 block min-h-[1.2em] truncate text-[0.6rem] text-or-clair">{nom}</span>
         </span>
@@ -176,9 +178,9 @@ function Navigation({
       {/* Barre de défilement fine et sombre, assortie au menu (la barre claire du navigateur jurait). */}
       <div className="-mx-4 mt-6 min-h-0 flex-1 space-y-5 overflow-y-auto px-4 pb-5 [scrollbar-color:rgb(255_255_255/0.18)_transparent] [scrollbar-width:thin]">
         {SECTIONS.filter((section) => admin || !section.admin).map((section, i) => (
-          <div key={section.titre ?? i}>
+          <div key={section.titre ?? i} className="menu-reduit:not-first:border-t menu-reduit:not-first:border-white/10 menu-reduit:not-first:pt-5">
             {section.titre && (
-              <p className="eyebrow mb-1.5 px-3 text-[0.6rem] text-ivoire/40">{section.titre}</p>
+              <p className="eyebrow mb-1.5 truncate px-3 text-[0.6rem] text-ivoire/40 menu-reduit:hidden">{section.titre}</p>
             )}
             <ul className="space-y-0.5">
               {section.liens.map(({ href, label, icon: Icon, pret }) => {
@@ -202,14 +204,15 @@ function Navigation({
                     <Link
                       href={href}
                       onClick={onNavigate}
+                      title={label}
                       aria-current={actif ? "page" : undefined}
-                      className={`relative flex h-10 items-center gap-3 rounded-xl px-3 text-sm transition-colors ${
+                      className={`relative flex h-10 items-center gap-3 rounded-xl px-3 text-sm transition-colors menu-reduit:justify-center menu-reduit:px-0 ${
                         actif ? "bg-white/10 text-ivoire" : "text-ivoire/75 hover:bg-white/5 hover:text-ivoire"
                       }`}
                     >
                       {actif && <span className="absolute inset-y-2.5 left-0 w-0.5 rounded-full bg-or" aria-hidden />}
                       <Icon size={18} aria-hidden className={`shrink-0 ${actif ? "text-or-clair" : ""}`} />
-                      {label}
+                      <span className="truncate menu-reduit:sr-only">{label}</span>
                     </Link>
                   </li>
                 );
@@ -224,9 +227,11 @@ function Navigation({
           href="/"
           target="_blank"
           rel="noopener noreferrer"
-          className="flex h-10 items-center gap-3 rounded-xl px-3 text-sm text-ivoire/75 transition-colors hover:bg-white/5 hover:text-ivoire"
+          title="Voir le site"
+          className="flex h-10 items-center gap-3 rounded-xl px-3 text-sm text-ivoire/75 transition-colors hover:bg-white/5 hover:text-ivoire menu-reduit:justify-center menu-reduit:px-0"
         >
-          <ExternalLink size={18} aria-hidden className="shrink-0" /> Voir le site
+          <ExternalLink size={18} aria-hidden className="shrink-0" />
+          <span className="truncate menu-reduit:sr-only">Voir le site</span>
         </a>
         {/* Le lien « Mon compte » vient du serveur : le tiroir se ferme au clic comme pour les rubriques. */}
         <div onClick={(e) => (e.target as HTMLElement).closest("a") && onNavigate?.()}>{compte}</div>
